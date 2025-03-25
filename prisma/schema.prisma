@@ -1,0 +1,88 @@
+datasource db {
+  provider    = "postgresql"
+  url         = env("DB_URL")
+}
+
+generator client {
+  provider    = "prisma-client-js"
+}
+
+model User_Types {
+  id            Int             @id @default(autoincrement())
+  user_type     String
+  created_at    DateTime        @default(now())
+
+  User          User[]
+}
+
+model User {
+  username      String          @id
+  first_name     String
+  last_name     String
+  password      String
+  user_type_id  Int         
+  created_at    DateTime        @default(now())
+
+  User_Type     User_Types      @relation(fields: [user_type_id], references: [id])
+
+  Sender        Notifications[]  @relation("sender")
+  Recipient     Notifications[]  @relation("recipient")
+  Policy_Holder Claim_Notif[]   @relation("policy_holder")
+  Claimant      Claim_Notif[]   @relation("claimant")
+}
+
+model Notifications {
+  id            Int             @id @default(autoincrement())
+  sender        String
+  recipient     String
+  is_active     Boolean         @default(true)
+  
+  Sender        User            @relation("sender", fields: [sender], references: [username])
+  Recipient     User            @relation("recipient", fields: [recipient], references: [username])
+
+  Policy_Notif  Policy_Notif?
+  Claim_Notif   Claim_Notif?
+  News_Notif    News_Notif?
+}
+
+model Policy_Notif {
+  id            Int             @id @default(autoincrement())
+  notif_id      Int             @unique
+  policy_id     Int
+  subject       String
+  body          String
+  is_read       Boolean
+  is_archived   Boolean
+  
+  Notification   Notifications    @relation(fields: [notif_id], references: [id])
+}
+
+model Claim_Notif {
+  id            Int             @id @default(autoincrement())
+  notif_id      Int             @unique
+  policy_holder String
+  claimant      String
+  type          String
+  due_date      DateTime
+  business      String
+  description   String
+  priority      Int
+  is_completed  Boolean         @default(false)
+  created_at    DateTime        @default(now())
+
+  Notification   Notifications    @relation(fields: [notif_id], references: [id])
+  Policy_Holder User            @relation("policy_holder", fields: [policy_holder], references: [username])
+  Claimant      User            @relation("claimant", fields: [claimant], references: [username])
+}
+
+model News_Notif {
+  id            Int             @id @default(autoincrement())
+  notif_id      Int             @unique
+  title         String
+  type          String
+  created_on    DateTime        @default(now())  // creation of policy
+  expires_on    DateTime
+  created_at    DateTime        @default(now())  // creation of record in database
+
+  Nofication     Notifications    @relation(fields: [notif_id], references: [id])
+}
