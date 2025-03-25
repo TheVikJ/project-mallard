@@ -1,10 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/utils/prisma';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const userId = parseInt(id);
+  
+  const notif = await prisma.notifications.findUnique({
+    where: { id: userId },
+    include: { PolicyNotif: true, ClaimNotif: true, NewsNotif: true },
+  });
   
   return NextResponse.json(
-    { id: id },
-    { status: 200 }
+    notif,
+    { status: notif ? 200 : 404 }
   );
 };

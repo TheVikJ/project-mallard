@@ -1,3 +1,6 @@
+// If you update this file, run `npx prisma generate` after
+// to update the Prisma library
+
 datasource db {
   provider    = "postgresql"
   url         = env("DB_URL")
@@ -7,15 +10,15 @@ generator client {
   provider    = "prisma-client-js"
 }
 
-model User_Types {
+model user_types {
   id            Int             @id @default(autoincrement())
   user_type     String
   created_at    DateTime        @default(now())
 
-  User          User[]
+  User          user[]
 }
 
-model User {
+model user {
   username      String          @id
   first_name     String
   last_name     String
@@ -23,29 +26,29 @@ model User {
   user_type_id  Int         
   created_at    DateTime        @default(now())
 
-  User_Type     User_Types      @relation(fields: [user_type_id], references: [id])
+  UserType      user_types      @relation(fields: [user_type_id], references: [id])
 
-  Sender        Notifications[]  @relation("sender")
-  Recipient     Notifications[]  @relation("recipient")
-  Policy_Holder Claim_Notif[]   @relation("policy_holder")
-  Claimant      Claim_Notif[]   @relation("claimant")
+  Sender        notifications[]  @relation("sender")
+  Recipient     notifications[]  @relation("recipient")
+  PolicyHolder  claim_notif[]   @relation("policy_holder")
+  Claimant      claim_notif[]   @relation("claimant")
 }
 
-model Notifications {
+model notifications {
   id            Int             @id @default(autoincrement())
   sender        String
   recipient     String
   is_active     Boolean         @default(true)
   
-  Sender        User            @relation("sender", fields: [sender], references: [username])
-  Recipient     User            @relation("recipient", fields: [recipient], references: [username])
+  Sender        user            @relation("sender", fields: [sender], references: [username])
+  Recipient     user            @relation("recipient", fields: [recipient], references: [username])
 
-  Policy_Notif  Policy_Notif?
-  Claim_Notif   Claim_Notif?
-  News_Notif    News_Notif?
+  PolicyNotif   policy_notif?
+  ClaimNotif    claim_notif?
+  NewsNotif     news_notif?
 }
 
-model Policy_Notif {
+model policy_notif {
   id            Int             @id @default(autoincrement())
   notif_id      Int             @unique
   policy_id     Int
@@ -54,10 +57,10 @@ model Policy_Notif {
   is_read       Boolean
   is_archived   Boolean
   
-  Notification   Notifications    @relation(fields: [notif_id], references: [id])
+  Notification   notifications    @relation(fields: [notif_id], references: [id])
 }
 
-model Claim_Notif {
+model claim_notif {
   id            Int             @id @default(autoincrement())
   notif_id      Int             @unique
   policy_holder String
@@ -70,12 +73,13 @@ model Claim_Notif {
   is_completed  Boolean         @default(false)
   created_at    DateTime        @default(now())
 
-  Notification   Notifications    @relation(fields: [notif_id], references: [id])
-  Policy_Holder User            @relation("policy_holder", fields: [policy_holder], references: [username])
-  Claimant      User            @relation("claimant", fields: [claimant], references: [username])
+  Notification   notifications    @relation(fields: [notif_id], references: [id])
+  
+  PolicyHolder  user            @relation("policy_holder", fields: [policy_holder], references: [username])
+  Claimant      user            @relation("claimant", fields: [claimant], references: [username])
 }
 
-model News_Notif {
+model news_notif {
   id            Int             @id @default(autoincrement())
   notif_id      Int             @unique
   title         String
@@ -84,5 +88,5 @@ model News_Notif {
   expires_on    DateTime
   created_at    DateTime        @default(now())  // creation of record in database
 
-  Nofication     Notifications    @relation(fields: [notif_id], references: [id])
+  Notification   notifications    @relation(fields: [notif_id], references: [id])
 }
