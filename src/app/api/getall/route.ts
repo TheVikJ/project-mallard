@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
   );
 
   const notifs = await prisma.notifications.findMany({
-    where: { sender:  },
+    where: { sender: userId },
     include: { PolicyNotif: true, ClaimNotif: true, NewsNotif: true },
   });
   
