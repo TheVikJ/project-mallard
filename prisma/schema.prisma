@@ -1,0 +1,92 @@
+// If you update this file, run `npx prisma generate` after
+// to update the Prisma library
+
+datasource db {
+  provider    = "postgresql"
+  url         = env("DB_URL")
+}
+
+generator client {
+  provider    = "prisma-client-js"
+}
+
+model user_types {
+  id            Int             @id @default(autoincrement())
+  user_type     String
+  created_at    DateTime        @default(now()) @db.Timestamptz()
+
+  User          user[]
+}
+
+model user {
+  username      String          @id
+  first_name     String
+  last_name     String
+  password      String
+  user_type_id  Int         
+  created_at    DateTime        @default(now()) @db.Timestamptz()
+
+  UserType      user_types      @relation(fields: [user_type_id], references: [id])
+
+  Sender        notifications[]  @relation("sender")
+  Recipient     notifications[]  @relation("recipient")
+  PolicyHolder  claim_notifs[]   @relation("policy_holder")
+  Claimant      claim_notifs[]   @relation("claimant")
+}
+
+model notifications {
+  id            Int             @id @default(autoincrement())
+  sender        String
+  recipient     String
+  is_active     Boolean         @default(true)
+  
+  Sender        user            @relation("sender", fields: [sender], references: [username])
+  Recipient     user            @relation("recipient", fields: [recipient], references: [username])
+
+  PolicyNotif   policy_notifs?
+  ClaimNotif    claim_notifs?
+  NewsNotif     news_notifs?
+}
+
+model policy_notifs {
+  id            Int             @id @default(autoincrement())
+  notif_id      Int             @unique
+  policy_id     Int
+  subject       String
+  body          String
+  is_read       Boolean
+  is_archived   Boolean
+  
+  Notification   notifications    @relation(fields: [notif_id], references: [id])
+}
+
+model claim_notifs {
+  id            Int             @id @default(autoincrement())
+  notif_id      Int             @unique
+  policy_holder String
+  claimant      String
+  type          String
+  due_date      DateTime        @db.Timestamptz()
+  business      String
+  description   String
+  priority      Int
+  is_completed  Boolean         @default(false)
+  created_at    DateTime        @default(now()) @db.Timestamptz()
+
+  Notification   notifications    @relation(fields: [notif_id], references: [id])
+  
+  PolicyHolder  user            @relation("policy_holder", fields: [policy_holder], references: [username])
+  Claimant      user            @relation("claimant", fields: [claimant], references: [username])
+}
+
+model news_notifs {
+  id            Int             @id @default(autoincrement())
+  notif_id      Int             @unique
+  title         String
+  type          String
+  created_on    DateTime        @default(now()) @db.Timestamptz()  // creation of policy
+  expires_on    DateTime        @db.Timestamptz()
+  created_at    DateTime        @default(now()) @db.Timestamptz() // creation of record in database
+
+  Notification   notifications    @relation(fields: [notif_id], references: [id])
+}
