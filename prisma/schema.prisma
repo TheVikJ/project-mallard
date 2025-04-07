@@ -13,7 +13,7 @@ generator client {
 model user_types {
   id            Int             @id @default(autoincrement())
   user_type     String
-  created_at    DateTime        @default(now())
+  created_at    DateTime        @default(now()) @db.Timestamptz()
 
   User          user[]
 }
@@ -24,14 +24,14 @@ model user {
   last_name     String
   password      String
   user_type_id  Int         
-  created_at    DateTime        @default(now())
+  created_at    DateTime        @default(now()) @db.Timestamptz()
 
   UserType      user_types      @relation(fields: [user_type_id], references: [id])
 
   Sender        notifications[]  @relation("sender")
   Recipient     notifications[]  @relation("recipient")
-  PolicyHolder  claim_notif[]   @relation("policy_holder")
-  Claimant      claim_notif[]   @relation("claimant")
+  PolicyHolder  claim_notifs[]   @relation("policy_holder")
+  Claimant      claim_notifs[]   @relation("claimant")
 }
 
 model notifications {
@@ -43,12 +43,12 @@ model notifications {
   Sender        user            @relation("sender", fields: [sender], references: [username])
   Recipient     user            @relation("recipient", fields: [recipient], references: [username])
 
-  PolicyNotif   policy_notif?
-  ClaimNotif    claim_notif?
-  NewsNotif     news_notif?
+  PolicyNotif   policy_notifs?
+  ClaimNotif    claim_notifs?
+  NewsNotif     news_notifs?
 }
 
-model policy_notif {
+model policy_notifs {
   id            Int             @id @default(autoincrement())
   notif_id      Int             @unique
   policy_id     Int
@@ -60,18 +60,18 @@ model policy_notif {
   Notification   notifications    @relation(fields: [notif_id], references: [id])
 }
 
-model claim_notif {
+model claim_notifs {
   id            Int             @id @default(autoincrement())
   notif_id      Int             @unique
   policy_holder String
   claimant      String
   type          String
-  due_date      DateTime
+  due_date      DateTime        @db.Timestamptz()
   business      String
   description   String
   priority      Int
   is_completed  Boolean         @default(false)
-  created_at    DateTime        @default(now())
+  created_at    DateTime        @default(now()) @db.Timestamptz()
 
   Notification   notifications    @relation(fields: [notif_id], references: [id])
   
@@ -79,14 +79,14 @@ model claim_notif {
   Claimant      user            @relation("claimant", fields: [claimant], references: [username])
 }
 
-model news_notif {
+model news_notifs {
   id            Int             @id @default(autoincrement())
   notif_id      Int             @unique
   title         String
   type          String
-  created_on    DateTime        @default(now())  // creation of policy
-  expires_on    DateTime
-  created_at    DateTime        @default(now())  // creation of record in database
+  created_on    DateTime        @default(now()) @db.Timestamptz()  // creation of policy
+  expires_on    DateTime        @db.Timestamptz()
+  created_at    DateTime        @default(now()) @db.Timestamptz() // creation of record in database
 
   Notification   notifications    @relation(fields: [notif_id], references: [id])
 }
