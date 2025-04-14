@@ -2,6 +2,11 @@
 
 import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
+import Image from "next/image";
+
+import Input from '../../components/Input';
+import Button from '../../components/Button';
+import duckCreekImage from '../../../public/duckCreek.png';
 
 // Define form input types
 type FormValues = {
@@ -10,36 +15,6 @@ type FormValues = {
   email: string;
   password: string;
 };
-
-// Simple Input component
-type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
-  className?: string;
-};
-
-const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, ...props }, ref) => (
-    <input
-      ref={ref}
-      className={`rounded px-4 py-3 w-full focus:outline-none ${className}`}
-      {...props}
-    />
-  )
-);
-Input.displayName = "Input";
-
-export { Input };
-
-// Simple Button component
-type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
-  className?: string;
-  children: React.ReactNode;
-};
-
-const Button: React.FC<ButtonProps> = ({ children, className, ...props }) => (
-  <button className={`rounded px-4 py-3 font-semibold ${className}`} {...props}>
-    {children}
-  </button>
-);
 
 // Main Form Component
 export default function RegisterForm() {
@@ -142,11 +117,14 @@ export default function RegisterForm() {
       <div className="hidden lg:flex flex-col items-center justify-center w-[30%] bg-white relative p-6">
         <h2 className="text-3xl font-semibold text-[#392D7C] mb-2">Mallard</h2>
         <p className="text-sm text-[#392D7C] mb-10">*get notified in an instant*</p>
-        <img
-          src="/duckCreek.png"
-          alt="Mallard character"
-          className="w-40 h-40 object-contain rounded-full absolute bottom-4 left-1/2 transform -translate-x-1/2"
-        />
+        <div className="w-40 aspect-[1028/828] object-contain rounded-full absolute bottom-4 left-1/2 transform -translate-x-1/2">
+          <Image
+            src={duckCreekImage}
+            alt="Mallard character"
+            fill
+            className="aspect-auto"
+          />
+        </div>
       </div>
     </div>
   );
