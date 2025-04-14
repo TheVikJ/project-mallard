@@ -1,26 +1,42 @@
 "use client";
 
 import React from "react";
-import { useForm } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
+
+// Define form input types
+type FormValues = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+};
 
 // Simple Input component
-const Input = React.forwardRef(({ className, ...props }, ref) => (
-  <input
-    ref={ref}
-    className={`rounded px-4 py-3 w-full focus:outline-none ${className}`}
-    {...props}
-  />
-));
+type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
+  className?: string;
+};
 
+const Input = React.forwardRef<HTMLInputElement, InputProps>(
+  ({ className, ...props }, ref) => (
+    <input
+      ref={ref}
+      className={`rounded px-4 py-3 w-full focus:outline-none ${className}`}
+      {...props}
+    />
+  )
+);
 Input.displayName = "Input";
 
 export { Input };
+
 // Simple Button component
-const Button = ({ children, className, ...props }) => (
-  <button
-    className={`rounded px-4 py-3 font-semibold ${className}`}
-    {...props}
-  >
+type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  className?: string;
+  children: React.ReactNode;
+};
+
+const Button: React.FC<ButtonProps> = ({ children, className, ...props }) => (
+  <button className={`rounded px-4 py-3 font-semibold ${className}`} {...props}>
     {children}
   </button>
 );
@@ -31,9 +47,10 @@ export default function RegisterForm() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm<FormValues>();
 
-  const onSubmit = (data) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const onSubmit: SubmitHandler<FormValues> = (data: any) => {
     console.log("Form Data:", data);
   };
 
@@ -44,9 +61,8 @@ export default function RegisterForm() {
         onSubmit={handleSubmit(onSubmit)}
         className="flex-1 px-12 py-16 text-white mt-16"
       >
-        {/* Register Title */}
-        <h1 className="text-5xl font-bold text-center mb-4">Register</h1> {/* Bigger, centered title */} 
-        <p className="text-sm mb-10 text-center">create your Mallard account</p> {/* Centered subtitle */}
+        <h1 className="text-5xl font-bold text-center mb-4">Register</h1>
+        <p className="text-sm mb-10 text-center">create your Mallard account</p>
 
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div>
