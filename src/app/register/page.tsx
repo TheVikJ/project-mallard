@@ -1,5 +1,5 @@
 "use client";
-
+import { useRouter } from "next/navigation";
 import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import Image from "next/image";
@@ -23,10 +23,16 @@ export default function RegisterForm() {
     handleSubmit,
     formState: { errors },
   } = useForm<FormValues>();
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onSubmit: SubmitHandler<FormValues> = (data: any) => {
-    console.log("Form Data:", data);
+  const router = useRouter();
+  const onSubmit: SubmitHandler<FormValues> = (data) => {
+    // Save the user's email and password (mocked registration)
+    localStorage.setItem("mallard-user", JSON.stringify({
+      email: data.email,
+      password: data.password,
+    }));
+  
+    // Redirect to login page
+    router.push("/login");
   };
 
   return (

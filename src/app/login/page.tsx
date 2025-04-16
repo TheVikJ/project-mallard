@@ -1,5 +1,5 @@
 "use client";
-
+import { useRouter } from "next/navigation";
 import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import Image from "next/image";
@@ -42,9 +42,21 @@ export default function SignInForm() {
     handleSubmit,
     formState: { errors },
   } = useForm<SignInFormInputs>();
-
+  const router = useRouter(); 
   const onSubmit: SubmitHandler<SignInFormInputs> = (data) => {
-    console.log("Sign In Data:", data);
+    const stored = localStorage.getItem("mallard-user");
+  
+    if (!stored) {
+      alert("No registered user found. Please sign up first.");
+      return;
+    }
+    const user = JSON.parse(stored);
+  
+    if (user.email === data.email && user.password === data.password) {
+      router.push("/inbox");
+    } else {
+      alert("Incorrect email or password.");
+    }
   };
 
   return (
