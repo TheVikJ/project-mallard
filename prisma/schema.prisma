@@ -39,6 +39,7 @@ model notifications {
   sender        String
   recipient     String
   is_active     Boolean         @default(true)
+  is_flagged     Boolean         @default(false)
   
   Sender        user            @relation("sender", fields: [sender], references: [username])
   Recipient     user            @relation("recipient", fields: [recipient], references: [username])
@@ -54,8 +55,8 @@ model policy_notifs {
   policy_id     Int
   subject       String
   body          String
-  is_read       Boolean
-  is_archived   Boolean
+  is_read       Boolean         @default(false)
+  is_archived   Boolean         @default(false)
   
   Notification   notifications    @relation(fields: [notif_id], references: [id])
 }
