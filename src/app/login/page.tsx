@@ -102,7 +102,7 @@ export default function SignInForm() {
 
         <div className="mb-6">
           <Input
-            placeholder="Email"
+            placeholder="Username"
             {...register("username", {
               required: "Username is required",
             })}

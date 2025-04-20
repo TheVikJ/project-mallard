@@ -4,14 +4,14 @@ import prisma from '@/utils/prisma';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { username, first_name, last_name, password, usertype } = body;
+    const { username, first_name, last_name, password, userType } = body;
 
-    if (!username || !first_name || !last_name || !password || !usertype) {
+    if (!username || !first_name || !last_name || !password || !userType) {
       return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
     }
 
     // Validate usertype range
-    if (![1, 2, 3, 4].includes(usertype)) {
+    if (![1, 2, 3, 4].includes(userType)) {
       return NextResponse.json({ error: 'Invalid usertype' }, { status: 400 });
     }
 
@@ -31,7 +31,9 @@ export async function POST(req: NextRequest) {
         first_name,
         last_name,
         password,
-        UserType: usertype,
+        UserType: {
+          connect: { id: userType },
+        },
       },
     });
 

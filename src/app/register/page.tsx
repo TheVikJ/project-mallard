@@ -2,8 +2,10 @@
 import { useRouter } from "next/navigation";
 import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import Image from "next/image";
+import axios from "axios";
+import { users } from "@prisma/client";
 
+import Image from "next/image";
 import Input from '../../components/Input';
 import Button from '../../components/Button';
 import duckCreekImage from '../../../public/duckCreek.png';
@@ -12,7 +14,7 @@ import duckCreekImage from '../../../public/duckCreek.png';
 type FormValues = {
   firstName: string;
   lastName: string;
-  email: string;
+  username: string;
   password: string;
 };
 
@@ -24,16 +26,46 @@ export default function RegisterForm() {
     formState: { errors },
   } = useForm<FormValues>();
   const router = useRouter();
-  const onSubmit: SubmitHandler<FormValues> = (data) => {
+
+  const onSubmit: SubmitHandler<FormValues> = async (data) => {
     // Save the user's email and password (mocked registration)
-    localStorage.setItem("mallard-user", JSON.stringify({
-      email: data.email,
-      password: data.password,
-    }));
-  
-    // Redirect to login page
-    router.push("/login");
+    const user = await attemptSignup(data.firstName, data.lastName, data.username, data.password, 1);
+    if (user && user.username && user.password) {
+      localStorage.setItem("mallard-user", JSON.stringify({
+        username: data.username,
+        password: data.password,
+      }));
+      router.push("/login");
+      alert("Profile created! Redirecting you now...");
+    }
   };
+
+  const attemptSignup = async (firstName: string, lastName: string, username: string, password: string, userType: number) => {
+    try {
+      const record = await axios.post<users>("/api/signup", {
+        first_name: firstName,
+        last_name: lastName,
+        username,
+        password,
+        userType,
+      });
+      return record.data;
+    }
+    catch (error: any) {
+      if (error.response) {
+        if (error.response.status === 400)
+          alert(`${error.response.data.error}. Please make corrections and try again.`);
+        else if (error.response.status === 409)
+          alert("Username in use. Please try another username.");
+        else if (error.response.status === 500)
+          alert("Server error. Please try again later.");
+      }
+      else if (error.request)
+        alert("Request error. Please try again.");
+      else
+        alert("An unexpected error occurred. Please try again later.");
+    }
+  }
 
   return (
     <div className="min-h-screen bg-[#6F63FF] flex">
@@ -74,19 +106,15 @@ export default function RegisterForm() {
 
         <div className="mb-6">
           <Input
-            placeholder="Email"
-            {...register("email", {
-              required: "Email is required",
-              pattern: {
-                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: "Enter a valid email",
-              },
+            placeholder="Username"
+            {...register("username", {
+              required: "Username is required",
             })}
             className="bg-[#392D7C] text-white placeholder:text-white shadow-md"
           />
-          {errors.email && (
+          {errors.username && (
             <p className="text-red-300 text-sm mt-1">
-              {errors.email.message}
+              {errors.username.message}
             </p>
           )}
         </div>
