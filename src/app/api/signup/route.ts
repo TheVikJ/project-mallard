@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Check if username already exists
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.users.findUnique({
       where: { username },
     });
 
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Create new user (no hashing as specified)
-    const newUser = await prisma.user.create({
+    const newUser = await prisma.users.create({
       data: {
         username,
         first_name,

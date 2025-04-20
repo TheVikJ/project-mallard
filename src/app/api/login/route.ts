@@ -10,8 +10,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing username or password' }, { status: 400 });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { username },
+    const user = await prisma.users.findUnique({
+      where: { username: username, password: password },
     });
 
     if (!user || user.password !== password) {
@@ -19,9 +19,9 @@ export async function POST(req: NextRequest) {
     }
 
     // Optional: exclude password from response
-    const { password: _, ...userWithoutPassword } = user;
+    // const { password: _, ...userWithoutPassword } = user;
 
-    return NextResponse.json(userWithoutPassword, { status: 200 });
+    return NextResponse.json(user, { status: 200 });
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

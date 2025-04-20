@@ -15,23 +15,23 @@ model user_types {
   user_type     String
   created_at    DateTime        @default(now()) @db.Timestamptz()
 
-  User          user[]
+  User          users[]
 }
 
-model user {
+model users {
   username      String          @id
   first_name     String
   last_name     String
   password      String
-  user_type_id  Int         
+  user_type     Int         
   created_at    DateTime        @default(now()) @db.Timestamptz()
 
-  UserType      user_types      @relation(fields: [user_type_id], references: [id])
+  UserType      user_types      @relation(fields: [user_type], references: [id])
 
   Sender        notifications[]  @relation("sender")
   Recipient     notifications[]  @relation("recipient")
-  PolicyHolder  claim_notifs[]   @relation("policy_holder")
-  Claimant      claim_notifs[]   @relation("claimant")
+  PolicyHolder  claim_notifs[]  @relation("policy_holder")
+  Claimant      claim_notifs[]  @relation("claimant")
 }
 
 model notifications {
@@ -41,8 +41,8 @@ model notifications {
   is_active     Boolean         @default(true)
   is_flagged     Boolean         @default(false)
   
-  Sender        user            @relation("sender", fields: [sender], references: [username])
-  Recipient     user            @relation("recipient", fields: [recipient], references: [username])
+  Sender        users           @relation("sender", fields: [sender], references: [username])
+  Recipient     users           @relation("recipient", fields: [recipient], references: [username])
 
   PolicyNotif   policy_notifs?
   ClaimNotif    claim_notifs?
@@ -76,8 +76,8 @@ model claim_notifs {
 
   Notification   notifications    @relation(fields: [notif_id], references: [id])
   
-  PolicyHolder  user            @relation("policy_holder", fields: [policy_holder], references: [username])
-  Claimant      user            @relation("claimant", fields: [claimant], references: [username])
+  PolicyHolder  users           @relation("policy_holder", fields: [policy_holder], references: [username])
+  Claimant      users           @relation("claimant", fields: [claimant], references: [username])
 }
 
 model news_notifs {
