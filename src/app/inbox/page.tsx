@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
-import React, { useState } from 'react';
-import { Mail, AlertCircle, Flag, Search, X } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Mail, AlertCircle, Flag, Search, X, Sun, Moon } from 'lucide-react';
 
 type Priority = 'low' | 'medium' | 'high';
 type Folder = 'inbox' | 'flagged' | 'sent' | 'drafts';
@@ -44,10 +44,11 @@ const priorityColors: Record<Priority, string> = {
   high: 'bg-red-100 text-red-700',
 };
 
+
 const Sidebar: React.FC<SidebarProps> = ({ selected, setSelected, onCompose }) => (
-  <div className="w-48 bg-gray-100 p-4 rounded-xl shadow-md">
+  <div className="w-48 bg-gray-100 dark:bg-gray-800 p-4 rounded-xl shadow-md">
     <div
-      className="bg-gray-300 text-center py-2 font-semibold rounded-md mb-6 cursor-pointer hover:bg-gray-400"
+      className="bg-gray-300 dark:bg-gray-700 text-center py-2 font-semibold rounded-md mb-6 cursor-pointer hover:bg-gray-400 dark:hover:bg-gray-600"
       onClick={onCompose}
     >
       Compose
@@ -57,7 +58,9 @@ const Sidebar: React.FC<SidebarProps> = ({ selected, setSelected, onCompose }) =
         <li
           key={item}
           className={`capitalize px-3 py-2 rounded-md cursor-pointer ${
-            selected === item ? 'bg-blue-200 font-semibold' : 'hover:bg-gray-200'
+            selected === item
+              ? 'bg-blue-200 dark:bg-blue-600 font-semibold'
+              : 'hover:bg-gray-200 dark:hover:bg-gray-600'
           }`}
           onClick={() => setSelected(item)}
         >
@@ -72,6 +75,8 @@ const MessageList: React.FC = () => {
   const [selectedFolder, setSelectedFolder] = useState<string>('inbox');
   const [search, setSearch] = useState<string>('');
   const [isComposing, setIsComposing] = useState<boolean>(false);
+  const [darkMode, setDarkMode] = useState<boolean>(false);
+
   const [newMessage, setNewMessage] = useState<Partial<Message>>({
     type: '',
     text: '',
@@ -283,6 +288,10 @@ const MessageList: React.FC = () => {
     },
   ]);
 
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', darkMode);
+  }, [darkMode]);
+
   const handleSend = () => {
     if (!newMessage.type || !newMessage.text) return;
 
@@ -348,25 +357,38 @@ const MessageList: React.FC = () => {
   });
 
   return (
-    <div className="relative">
+    <div className="relative min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+      {/* Dark Mode Toggle */}
+      <button
+        className="absolute top-4 right-4 z-50 text-yellow-500 dark:text-yellow-300 hover:text-yellow-600"
+        onClick={() => setDarkMode(!darkMode)}
+        aria-label="Toggle dark mode"
+      >
+        {darkMode ? (
+          <Moon className="w-6 h-6" />
+        ) : (
+          <Sun className="w-6 h-6" />
+        )}
+      </button>
+      
       <div className="flex w-full max-w-6xl mx-auto p-4 gap-6">
         <Sidebar selected={selectedFolder} setSelected={setSelectedFolder} onCompose={() => setIsComposing(true)} />
 
         <div className="flex-1">
           {/* Search Bar */}
-          <div className="mb-4 flex items-center gap-2 border border-gray-300 rounded-md px-3 py-2 w-full max-w-md bg-white shadow-sm">
+          <div className="mb-4 flex items-center gap-2 border border-gray-300 dark:border-gray-700 rounded-md px-3 py-2 w-full max-w-md bg-white dark:bg-gray-800 shadow-sm">
             <Search className="w-4 h-4 text-gray-400" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by message type..."
-              className="w-full outline-none text-sm"
+              className="w-full outline-none text-sm bg-transparent text-gray-900 dark:text-gray-100"
             />
           </div>
 
-          {/* Message List */}
-          {filteredMessages.map((msg) => (
+           {/* Message List */}
+           {filteredMessages.map((msg) => (
             <div
               key={msg.notification_id}
               className={`flex items-center justify-between border-b py-3 ${!msg.is_active ? 'opacity-50' : ''}`}
