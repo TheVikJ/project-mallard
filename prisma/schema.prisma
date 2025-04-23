@@ -39,8 +39,9 @@ model notifications {
   sender        String
   recipient     String
   is_active     Boolean         @default(true)
-  is_flagged     Boolean         @default(false)
-  
+  is_flagged    Boolean         @default(false)
+  folder        String?
+
   Sender        user            @relation("sender", fields: [sender], references: [username])
   Recipient     user            @relation("recipient", fields: [recipient], references: [username])
 
