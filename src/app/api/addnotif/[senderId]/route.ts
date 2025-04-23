@@ -17,19 +17,20 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ sen
   //Attempt for including flagged and folder
   const is_flagged = body.is_flagged ?? false;
   const folder    = body.folder; // e.g. "inbox" | "archive" | undefined
+  const priority  = body.priority; // e.g. "2 - high" | "1 - medium" | "0 -low"
   // Added into the following create notification calls
   
   try {
     let res: policy_notifs | claim_notifs | news_notifs;
     switch (body.type) {
       case 'policy':
-        res = await createPolicy(senderId, body.recipient, body.data, {is_flagged, folder});
+        res = await createPolicy(senderId, body.recipient, body.data, {is_flagged, folder, priority});
         break;
       case 'claim':
-        res = await createClaim(senderId, body.recipient, body.data, {is_flagged, folder});
+        res = await createClaim(senderId, body.recipient, body.data, {is_flagged, folder, priority});
         break;
       case 'news':
-        res = await createNews(senderId, body.recipient, body.data, {is_flagged, folder});
+        res = await createNews(senderId, body.recipient, body.data, {is_flagged, folder, priority});
         break;
       default:
         return NextResponse.json({ message: 'Property \'type\' must be one of [\'policy\', \'claim\', \'news\']' }, { status: 400 });
@@ -45,7 +46,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ sen
   }
 };
 
-async function createPolicy(senderId: string, recipientId: string, data: policy_notifs, parentFields: {is_flagged: boolean; folder?: string}) {
+async function createPolicy(senderId: string, recipientId: string, data: policy_notifs, parentFields: {is_flagged: boolean; folder?: string, priority? : number}) {
   return await prisma.policy_notifs.create({
     data: {
       policy_id: data.policy_id,
@@ -57,26 +58,27 @@ async function createPolicy(senderId: string, recipientId: string, data: policy_
           recipient: recipientId,
           is_flagged: parentFields.is_flagged,
           folder: parentFields.folder,
+          priority: parentFields.priority, //defaults to 0 if not provided
         },
       },
     },
   });
 }
 
-async function createClaim(senderId: string, recipientId: string, data: claim_notifs, parentFields: {is_flagged: boolean; folder?: string}) {
+async function createClaim(senderId: string, recipientId: string, data: claim_notifs, parentFields: {is_flagged: boolean; folder?: string, priority? : number}) {
   return await prisma.claim_notifs.create({
     data: {
       type: data.type,
       due_date: data.due_date,
       business: data.business,
       description: data.description,
-      priority: data.priority,
       Notification: {
         create: {
           sender: senderId,
           recipient: recipientId,
           is_flagged: parentFields.is_flagged,
           folder: parentFields.folder,
+          priority: parentFields.priority, //defaults to 0 if not provided
         },
       },
       PolicyHolder: {
@@ -93,7 +95,7 @@ async function createClaim(senderId: string, recipientId: string, data: claim_no
   });
 }     
 
-async function createNews(senderId: string, recipientId: string, data: news_notifs, parentFields: {is_flagged: boolean; folder?: string}) {
+async function createNews(senderId: string, recipientId: string, data: news_notifs, parentFields: {is_flagged: boolean; folder?: string, priority? : number}) {
   return await prisma.news_notifs.create({
     data: {
       title: data.title,
@@ -106,6 +108,7 @@ async function createNews(senderId: string, recipientId: string, data: news_noti
           recipient: recipientId,
           is_flagged: parentFields.is_flagged,
           folder: parentFields.folder,
+          priority: parentFields.priority, //defaults to 0 if not provided
         },
       },
     },
