@@ -12,10 +12,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata = {
-  title: "Mallard",
-  description: "Get notified in an instant",
-};
+// export const metadata = {
+//   title: "Mallard",
+//   description: "Get notified in an instant",
+// };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (

@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
-import React, { useState } from 'react';
-import { Mail, AlertCircle, Flag, Search, X } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Mail, AlertCircle, Flag, Search, X, Sun, Moon } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 type Priority = 'low' | 'medium' | 'high';
 type Folder = 'inbox' | 'flagged' | 'sent' | 'drafts';
@@ -13,6 +14,7 @@ interface Message {
   recipient_id: number;
   type: string;
   text: string;
+  subject: string;
   timestamp: string;
   is_read: boolean;
   is_active: boolean;
@@ -28,20 +30,21 @@ interface SidebarProps {
 }
 
 const allowedTypes: string[] = [
-  'Claim Update',
-  'Follow-Up Question',
-  'Policy Reminder',
-  'Claim Field',
-  'Investigation Statement',
-  'Policy Inquiry',
-  'System Notice',
-  'Document Upload',
+  'Claims',
+  'News',
+  'Policy',
 ];
 
 const priorityColors: Record<Priority, string> = {
-  low: 'bg-gray-100 text-gray-700',
+  low: 'bg-yellow-100 text-yellow-700',
   medium: 'bg-orange-100 text-orange-700',
   high: 'bg-red-100 text-red-700',
+};
+
+const allowedTypeColors: Record<string, string> = {
+  Claims: 'bg-blue-100 text-blue-700',
+  News: 'bg-green-100 text-green-700',
+  Policy: 'bg-purple-100 text-purple-700',
 };
 
 const Sidebar: React.FC<SidebarProps> = ({ selected, setSelected, onCompose }) => (
@@ -72,8 +75,10 @@ const MessageList: React.FC = () => {
   const [selectedFolder, setSelectedFolder] = useState<string>('inbox');
   const [search, setSearch] = useState<string>('');
   const [isComposing, setIsComposing] = useState<boolean>(false);
+  const [darkMode, setDarkMode] = useState<boolean>(false);
   const [newMessage, setNewMessage] = useState<Partial<Message>>({
     type: '',
+    subject: '',
     text: '',
     priority: 'low',
     flagged: false,
@@ -85,206 +90,222 @@ const MessageList: React.FC = () => {
     recipient_id: 202,
     timestamp: new Date().toISOString(),
   });
+
   const [messageData, setMessageData] = useState<Message[]>([
     {
       notification_id: 8001,
       sender_id: 202,
       recipient_id: 201,
-      type: "Claim Update",
-      text: "Your claim #893...",
+      type: "Policy",
+      subject: "Your Policy Renewal Notice – Action Required",
       timestamp: "2025-03-30 14:44",
       is_read: false,
       is_active: true,
       priority: "high",
       flagged: false,
       folder: "inbox",
+      text: ''
     },
     {
       notification_id: 8002,
       sender_id: 201,
       recipient_id: 202,
-      type: "Follow-Up Question",
-      text: "Can you clarify w...",
+      type: "Claims",
+      subject: "Claim #34321: Additional Information Needed",
       timestamp: "2025-03-30 15:00",
       is_read: true,
       is_active: true,
       priority: "medium",
       flagged: false,
       folder: "inbox",
+      text: ''
     },
     {
       notification_id: 8003,
       sender_id: 205,
       recipient_id: 204,
-      type: "Policy Reminder",
-      text: "Your homeowner...",
+      type: "Claims",
+      subject: "Proof of Address Required to Finalize Your Claim",
       timestamp: "2025-03-29 09:10",
       is_read: true,
       is_active: true,
       priority: "low",
       flagged: false,
       folder: "inbox",
+      text: ''
     },
     {
       notification_id: 8004,
       sender_id: 208,
       recipient_id: 207,
-      type: "Claim Update",
-      text: "The damage esti...",
+      type: "Policy",
+      subject: "Temporary Coverage Summary for Rental Vehicle",
       timestamp: "2025-03-30 11:00",
       is_read: false,
       is_active: true,
       priority: "medium",
       flagged: true,
       folder: "inbox",
+      text: ''
     },
     {
       notification_id: 8005,
       sender_id: 210,
       recipient_id: 209,
-      type: "Policy Reminder",
-      text: "We've updated y...",
+      type: "News",
+      subject: "Your Monthly Statement is Ready",
       timestamp: "2025-03-28 16:43",
       is_read: true,
       is_active: true,
       priority: "low",
       flagged: false,
       folder: "inbox",
+      text: ''
     },
     {
       notification_id: 8006,
       sender_id: 203,
       recipient_id: 213,
-      type: "Claim Update",
-      text: "We've received y...",
+      type: "News",
+      subject: "Storm Damage Coverage Tips You Should Know",
       timestamp: "2025-03-27 13:27",
       is_read: true,
       is_active: true,
       priority: "high",
       flagged: true,
       folder: "inbox",
+      text: ''
     },
     {
       notification_id: 8007,
       sender_id: 206,
       recipient_id: 202,
-      type: "Investigation Statement",
-      text: "We've initiated a...",
+      type: "News",
+      subject: "Update: New Discount Opportunities Available",
       timestamp: "2025-03-30 10:00",
       is_read: false,
       is_active: true,
       priority: "medium",
       flagged: false,
       folder: "inbox",
+      text: ''
     },
     {
       notification_id: 8008,
       sender_id: 205,
       recipient_id: 203,
-      type: "System Notice",
-      text: "New login from u...",
+      type: "Claims",
+      subject: "We’ve Received Your Claim – What Happens Next",
       timestamp: "2025-03-31 07:15",
       is_read: true,
       is_active: true,
       priority: "low",
       flagged: false,
       folder: "inbox",
+      text: ''
     },
     {
       notification_id: 8009,
       sender_id: 204,
       recipient_id: 210,
-      type: "Follow-Up Question",
-      text: "Please rate your...",
+      type: "Policy",
+      subject: "Verify Your Contact Information to Avoid Delays",
       timestamp: "2025-03-30 18:25",
       is_read: true,
       is_active: true,
       priority: "medium",
       flagged: true,
       folder: "inbox",
+      text: ''
     },
     {
       notification_id: 8010,
       sender_id: 208,
       recipient_id: 210,
-      type: "Document Upload",
-      text: "All requested do...",
+      type: "Policy",
+      subject: "Let’s Review Your Auto Policy Together",
       timestamp: "2025-03-28 17:50",
       is_read: true,
       is_active: true,
       priority: "high",
       flagged: false,
       folder: "inbox",
+      text: ''
     },
     {
       notification_id: 8011,
       sender_id: 207,
       recipient_id: 206,
-      type: "Claim Update",
-      text: "Still awaiting adj...",
+      type: "Claims",
+      subject: "Claim #98721 has been recieved and is now being reviewed",
       timestamp: "2025-03-28 17:30",
       is_read: false,
       is_active: true,
       priority: "medium",
       flagged: false,
       folder: "inbox",
+      text: ''
     },
     {
       notification_id: 8012,
       sender_id: 202,
       recipient_id: 209,
-      type: "Claim Update",
-      text: "Claim #21843 has...",
+      type: "Claims",
+      subject: "Claim #21843 has been reviewed",
       timestamp: "2025-03-27 16:00",
       is_read: true,
       is_active: true,
       priority: "low",
       flagged: true,
       folder: "inbox",
+      text: ''
     },
     {
       notification_id: 8013,
       sender_id: 202,
       recipient_id: 210,
-      type: "Policy Inquiry",
-      text: "What’s the proces...",
+      type: "News",
+      subject: "Welcome to DuckCreek – What’s Next",
       timestamp: "2025-03-30 12:44",
       is_read: false,
       is_active: true,
       priority: "medium",
       flagged: false,
       folder: "inbox",
+      text: ''
     },
     {
       notification_id: 8014,
       sender_id: 210,
       recipient_id: 202,
-      type: "Claim Update",
-      text: "Images from ins...",
+      type: "Policy",
+      subject: "Your Insurance Card is Now Available Online",
       timestamp: "2025-03-31 09:30",
       is_read: true,
       is_active: true,
       priority: "high",
       flagged: false,
       folder: "inbox",
+      text: ''
     },
     {
       notification_id: 8015,
       sender_id: 201,
       recipient_id: 202,
-      type: "Follow-Up Question",
-      text: "Still waiting to he...",
+      type: "News",
+      subject: "Please verify your email for DuckCreek Notification services",
       timestamp: "2025-03-31 10:20",
       is_read: false,
       is_active: true,
       priority: "medium",
       flagged: false,
       folder: "inbox",
+      text: ''
     },
   ]);
 
   const handleSend = () => {
-    if (!newMessage.type || !newMessage.text) return;
+    if (!newMessage.type || !newMessage.subject) return;
 
     setMessageData([
       {
@@ -300,7 +321,7 @@ const MessageList: React.FC = () => {
   };
 
   const handleSaveDraft = () => {
-    if (!newMessage.type || !newMessage.text) return; // Ensure required fields are not empty
+    if (!newMessage.type || !newMessage.subject) return; // Ensure required fields are not empty
   
     setMessageData((prevMessages) => [
       {
@@ -321,7 +342,7 @@ const MessageList: React.FC = () => {
     // Reset newMessage state so input fields clear
     setNewMessage({
       type: "",
-      text: "",
+      subject: "",
       priority: "low",
       flagged: false,
       folder: "drafts",
@@ -348,19 +369,48 @@ const MessageList: React.FC = () => {
   });
 
   return (
-    <div className="relative">
+    <div className="relative min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+      {/* Dark Mode Toggle */}
+      <button
+        className="absolute top-4 right-4 z-50 text-yellow-500 dark:text-yellow-300 hover:text-yellow-600"
+        onClick={() => setDarkMode(!darkMode)}
+        aria-label="Toggle dark mode"
+      >
+        <AnimatePresence mode="wait">
+          {darkMode ? (
+            <motion.div
+              key="moon"
+              initial={{ opacity: 0, rotate: -90 }}
+              animate={{ opacity: 1, rotate: 0 }}
+              exit={{ opacity: 0, rotate: 90 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Moon className="w-6 h-6" />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="sun"
+              initial={{ opacity: 0, rotate: 90 }}
+              animate={{ opacity: 1, rotate: 0 }}
+              exit={{ opacity: 0, rotate: -90 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Sun className="w-6 h-6" />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </button>
       <div className="flex w-full max-w-6xl mx-auto p-4 gap-6">
         <Sidebar selected={selectedFolder} setSelected={setSelectedFolder} onCompose={() => setIsComposing(true)} />
-
-        <div className="flex-1">
+        <div className="flex-1">      
           {/* Search Bar */}
           <div className="mb-4 flex items-center gap-2 border border-gray-300 rounded-md px-3 py-2 w-full max-w-md bg-white shadow-sm">
             <Search className="w-4 h-4 text-gray-400" />
             <input
-              type="text"
+              type="subject"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by message type..."
+              placeholder="Search by message subject..."
               className="w-full outline-none text-sm"
             />
           </div>
@@ -379,19 +429,27 @@ const MessageList: React.FC = () => {
                 {msg.timestamp}
               </div>
 
-              {/* Type */}
               <div className="flex-1 px-4 text-gray-900 font-medium flex items-center gap-2">
-                {msg.type}
-              </div>
+  {msg.subject.length >= 30 ? (msg.subject.slice(0, 30) + '...') : msg.subject}
+</div>
+
+              {/* Type */}
+              <div className="flex gap-2 items-center">
+              <span
+                  className={`px-2 py-1 text-xs rounded-full font-semibold ${allowedTypeColors[msg.type]}`}
+                >
+                  {msg.type}
+                </span>
+
 
               {/* Priority */}
-              <div className="flex gap-2 items-center">
                 <span
                   className={`px-2 py-1 text-xs rounded-full font-semibold ${priorityColors[msg.priority]}`}
                 >
                   {msg.priority}
                 </span>
               </div>
+             
             </div>
           ))}
         </div>
