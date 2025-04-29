@@ -12,7 +12,7 @@ generator client {
 
 model user_types {
   id            Int             @id @default(autoincrement())
-  user_type     String
+  type          String
   created_at    DateTime        @default(now()) @db.Timestamptz()
 
   User          user[]
@@ -22,6 +22,7 @@ model user {
   username      String          @id
   first_name     String
   last_name     String
+  email         String?
   password      String
   user_type_id  Int         
   created_at    DateTime        @default(now()) @db.Timestamptz()
@@ -30,16 +31,20 @@ model user {
 
   Sender        notifications[]  @relation("sender")
   Recipient     notifications[]  @relation("recipient")
-  PolicyHolder  claim_notifs[]   @relation("policy_holder")
-  Claimant      claim_notifs[]   @relation("claimant")
+  PolicyHolder  claim_notifs[]  @relation("policy_holder")
+  Claimant      claim_notifs[]  @relation("claimant")
 }
 
 model notifications {
   id            Int             @id @default(autoincrement())
   sender        String
   recipient     String
+  priority      Int             @default(0)
+  is_read       Boolean         @default(false)
   is_active     Boolean         @default(true)
-  
+  is_flagged     Boolean         @default(false)
+  created_at    DateTime        @default(now())
+
   Sender        user            @relation("sender", fields: [sender], references: [username])
   Recipient     user            @relation("recipient", fields: [recipient], references: [username])
 
@@ -54,8 +59,8 @@ model policy_notifs {
   policy_id     Int
   subject       String
   body          String
-  is_read       Boolean
-  is_archived   Boolean
+  is_archived   Boolean         @default(false)
+  created_at    DateTime        @default(now())
   
   Notification   notifications    @relation(fields: [notif_id], references: [id])
 }
@@ -69,7 +74,6 @@ model claim_notifs {
   due_date      DateTime        @db.Timestamptz()
   business      String
   description   String
-  priority      Int
   is_completed  Boolean         @default(false)
   created_at    DateTime        @default(now()) @db.Timestamptz()
 
@@ -83,6 +87,7 @@ model news_notifs {
   id            Int             @id @default(autoincrement())
   notif_id      Int             @unique
   title         String
+  body          String
   type          String
   created_on    DateTime        @default(now()) @db.Timestamptz()  // creation of policy
   expires_on    DateTime        @db.Timestamptz()
