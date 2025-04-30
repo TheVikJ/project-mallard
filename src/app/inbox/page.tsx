@@ -3,10 +3,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { Mail, AlertCircle, Flag, Search, X, Sun, Moon } from 'lucide-react';
-<<<<<<< HEAD
-import { motion, AnimatePresence } from 'framer-motion';
-=======
->>>>>>> 67feea7aa159dc6d6dca4a3716a5da9bf15fb1db
 
 type Priority = 'low' | 'medium' | 'high';
 type Folder = 'inbox' | 'flagged' | 'sent' | 'drafts';
@@ -44,14 +40,6 @@ const priorityColors: Record<Priority, string> = {
   high: 'bg-red-100 text-red-700',
 };
 
-<<<<<<< HEAD
-const allowedTypeColors: Record<string, string> = {
-  Claims: 'bg-blue-100 text-blue-700',
-  News: 'bg-green-100 text-green-700',
-  Policy: 'bg-purple-100 text-purple-700',
-};
-=======
->>>>>>> 67feea7aa159dc6d6dca4a3716a5da9bf15fb1db
 
 const Sidebar: React.FC<SidebarProps> = ({ selected, setSelected, onCompose }) => (
   <div className="w-48 bg-gray-100 dark:bg-gray-800 p-4 rounded-xl shadow-md">
@@ -84,10 +72,6 @@ const MessageList: React.FC = () => {
   const [search, setSearch] = useState<string>('');
   const [isComposing, setIsComposing] = useState<boolean>(false);
   const [darkMode, setDarkMode] = useState<boolean>(false);
-<<<<<<< HEAD
-=======
-
->>>>>>> 67feea7aa159dc6d6dca4a3716a5da9bf15fb1db
   const [newMessage, setNewMessage] = useState<Partial<Message>>({
     type: '',
     subject: '',
@@ -392,32 +376,6 @@ const MessageList: React.FC = () => {
         onClick={() => setDarkMode(!darkMode)}
         aria-label="Toggle dark mode"
       >
-<<<<<<< HEAD
-        <AnimatePresence mode="wait">
-          {darkMode ? (
-            <motion.div
-              key="moon"
-              initial={{ opacity: 0, rotate: -90 }}
-              animate={{ opacity: 1, rotate: 0 }}
-              exit={{ opacity: 0, rotate: 90 }}
-              transition={{ duration: 0.3 }}
-            >
-              <Moon className="w-6 h-6" />
-            </motion.div>
-          ) : (
-            <motion.div
-              key="sun"
-              initial={{ opacity: 0, rotate: 90 }}
-              animate={{ opacity: 1, rotate: 0 }}
-              exit={{ opacity: 0, rotate: -90 }}
-              transition={{ duration: 0.3 }}
-            >
-              <Sun className="w-6 h-6" />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </button>
-=======
         {darkMode ? (
           <Moon className="w-6 h-6" />
         ) : (
@@ -425,7 +383,6 @@ const MessageList: React.FC = () => {
         )}
       </button>
       
->>>>>>> 67feea7aa159dc6d6dca4a3716a5da9bf15fb1db
       <div className="flex w-full max-w-6xl mx-auto p-4 gap-6">
         <Sidebar selected={selectedFolder} setSelected={setSelectedFolder} onCompose={() => setIsComposing(true)} />
         <div className="flex-1">      
@@ -436,13 +393,8 @@ const MessageList: React.FC = () => {
               type="subject"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-<<<<<<< HEAD
-              placeholder="Search by message subject..."
-              className="w-full outline-none text-sm"
-=======
               placeholder="Search by message type..."
               className="w-full outline-none text-sm bg-transparent text-gray-900 dark:text-gray-100"
->>>>>>> 67feea7aa159dc6d6dca4a3716a5da9bf15fb1db
             />
           </div>
 
