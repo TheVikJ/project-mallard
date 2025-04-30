@@ -16,7 +16,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ sen
   
   //Attempt for including flagged and folder
   const is_flagged = body.is_flagged ?? false;
-  const folder    = body.folder; // e.g. "inbox" | "archive" | undefined
   const priority  = body.priority; // e.g. "2 - high" | "1 - medium" | "0 -low"
   // Added into the following create notification calls
   
@@ -24,13 +23,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ sen
     let res: policy_notifs | claim_notifs | news_notifs;
     switch (body.type) {
       case 'policy':
-        res = await createPolicy(senderId, body.recipient, body.data, {is_flagged, folder, priority});
+        res = await createPolicy(senderId, body.recipient, body.data, is_flagged, priority);
         break;
       case 'claim':
-        res = await createClaim(senderId, body.recipient, body.data, {is_flagged, folder, priority});
+        res = await createClaim(senderId, body.recipient, body.data, is_flagged, priority);
         break;
       case 'news':
-        res = await createNews(senderId, body.recipient, body.data, {is_flagged, folder, priority});
+        res = await createNews(senderId, body.recipient, body.data, is_flagged, priority);
         break;
       default:
         return NextResponse.json({ message: 'Property \'type\' must be one of [\'policy\', \'claim\', \'news\']' }, { status: 400 });
@@ -46,71 +45,146 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ sen
   }
 };
 
-async function createPolicy(senderId: string, recipientId: string, data: policy_notifs, parentFields: {is_flagged: boolean; folder?: string, priority? : number}) {
-  return await prisma.policy_notifs.create({
+
+
+async function createPolicy(
+  senderId: string,
+  recipientId: string,
+  data: policy_notifs,
+  is_flagged: boolean,
+  priority?: number
+) {
+  //0) realign notifications.id 
+  await prisma.$executeRaw`
+    SELECT setval(
+      pg_get_serial_sequence('notifications','id'),
+      (SELECT COALESCE(MAX(id), 0) FROM notifications),
+      true
+    );
+  `;
+
+  //1) create a new notification 
+  const notif = await prisma.notifications.create({
+    data: { sender: senderId, recipient: recipientId, is_flagged, priority }
+  });
+
+  //2) realign policy_notifs.id 
+  await prisma.$executeRaw`
+    SELECT setval(
+      pg_get_serial_sequence('policy_notifs','id'),
+      (SELECT COALESCE(MAX(id), 0) FROM policy_notifs),
+      true
+    );
+  `;
+
+  //3) create the linked policy_notif
+  return prisma.policy_notifs.create({
     data: {
+      notif_id:  notif.id,
       policy_id: data.policy_id,
-      subject: data.subject,
-      body: data.body,
-      Notification: {
-        create: {
-          sender: senderId,
-          recipient: recipientId,
-          is_flagged: parentFields.is_flagged,
-          folder: parentFields.folder,
-          priority: parentFields.priority, //defaults to 0 if not provided
-        },
-      },
-    },
+      subject:   data.subject,
+      body:      data.body
+    }
   });
 }
 
-async function createClaim(senderId: string, recipientId: string, data: claim_notifs, parentFields: {is_flagged: boolean; folder?: string, priority? : number}) {
-  return await prisma.claim_notifs.create({
-    data: {
-      type: data.type,
-      due_date: data.due_date,
-      business: data.business,
-      description: data.description,
-      Notification: {
-        create: {
-          sender: senderId,
-          recipient: recipientId,
-          is_flagged: parentFields.is_flagged,
-          folder: parentFields.folder,
-          priority: parentFields.priority, //defaults to 0 if not provided
-        },
-      },
-      PolicyHolder: {
-        connect: {
-          username: data.policy_holder,
-        },
-      },
-      Claimant: {
-        connect: {
-          username: data.claimant,
-        },
-      }
-    },
-  });
-}     
 
-async function createNews(senderId: string, recipientId: string, data: news_notifs, parentFields: {is_flagged: boolean; folder?: string, priority? : number}) {
-  return await prisma.news_notifs.create({
+async function createClaim(
+  senderId: string,
+  recipientId: string,
+  data: claim_notifs,
+  is_flagged: boolean,
+  priority?: number
+) {
+  // 0) realign notifications.seq
+  await prisma.$executeRaw`
+    SELECT setval(
+      pg_get_serial_sequence('notifications','id'),
+      (SELECT COALESCE(MAX(id),0) FROM notifications),
+      true
+    );
+  `;
+
+  // 1) create the Notification row
+  const notif = await prisma.notifications.create({
     data: {
-      title: data.title,
-      type: data.type,
-      created_on: data.created_on,
-      expires_on: data.expires_on,
-      Notification: {
-        create: {
-          sender: senderId,
-          recipient: recipientId,
-          is_flagged: parentFields.is_flagged,
-          folder: parentFields.folder,
-          priority: parentFields.priority, //defaults to 0 if not provided
-        },
-      },
-    },
+      sender:     senderId,
+      recipient:  recipientId,
+      is_flagged,
+      priority,
+    }
+  });
+
+  // 2) realign claim_notifs.seq
+  await prisma.$executeRaw`
+    SELECT setval(
+      pg_get_serial_sequence('claim_notifs','id'),
+      (SELECT COALESCE(MAX(id),0) FROM claim_notifs),
+      true
+    );
+  `;
+
+  // 3) insert into claim_notifs using the scalar FKs
+  return prisma.claim_notifs.create({
+    data: {
+      notif_id:      notif.id,
+      policy_holder: data.policy_holder,  // scalar FK
+      claimant:      data.claimant,       // scalar FK
+      type:          data.type,
+      due_date:      data.due_date,
+      business:      data.business,
+      description:   data.description,
+    }
   });
 }
+
+
+async function createNews(
+  senderId: string,
+  recipientId: string,
+  data: news_notifs,
+  is_flagged: boolean,
+  priority?: number
+) {
+  // 0) realign notifications.id sequence
+  await prisma.$executeRaw`
+    SELECT setval(
+      pg_get_serial_sequence('notifications','id'),
+      (SELECT COALESCE(MAX(id),0) FROM notifications),
+      true
+    );
+  `;
+
+  // 1) insert into notifications
+  const notif = await prisma.notifications.create({
+    data: {
+      sender:     senderId,
+      recipient:  recipientId,
+      is_flagged,
+      priority,
+    }
+  });
+
+  // 2) realign news_notifs.id sequence
+  await prisma.$executeRaw`
+    SELECT setval(
+      pg_get_serial_sequence('news_notifs','id'),
+      (SELECT COALESCE(MAX(id),0) FROM news_notifs),
+      true
+    );
+  `;
+
+  // 3) insert into news_notifs using scalar fields (no nested connect for main notification type in the subtype)
+  return prisma.news_notifs.create({
+    data: {
+      notif_id:    notif.id,        // FK back to notifications
+      title:       data.title,
+      body:        data.body,       
+      type:        data.type,
+      created_on:  data.created_on,
+      expires_on:  data.expires_on,
+    }
+  });
+}
+
+
