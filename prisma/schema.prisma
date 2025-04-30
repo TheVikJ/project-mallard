@@ -23,10 +23,10 @@ model users {
   first_name     String
   last_name     String
   password      String
-  user_type     Int         
+  user_type_id  Int         
   created_at    DateTime        @default(now()) @db.Timestamptz()
 
-  UserType      user_types      @relation(fields: [user_type], references: [id])
+  UserType      user_types      @relation(fields: [user_type_id], references: [id])
 
   Sender        notifications[]  @relation("sender")
   Recipient     notifications[]  @relation("recipient")
