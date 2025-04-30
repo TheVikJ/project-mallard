@@ -49,19 +49,50 @@ Creates a new notification (policy, claim, or news) for a single recipient.
 <br>
 
  ```json
-  Example Body
-  {  
-    "type": "policy",       // "policy" | "claim" | "news"  
-    "recipient": "alice",   // recipient’s username  
-    "data": {               // subtype-specific fields  
-      // ── policy example:  
-      "policy_id": 42,  
-      "subject": "Policy Update",  
-      "body": "Your plan has changed.",  
-      "is_read": false,  
-      "is_archived": false  
-  }
+  Example Policy Body:
+{
+"type": "policy",
+  "recipient": "johndoe",
+  "data": {
+    "policy_id": 9023,
+    "subject": "Policy Expiration",
+    "body": "Your policy has just expired, renew now."
+  },
+  "is_flagged": false,
+  "priority": 1
 }
+
+  Example Claims Body:
+{
+"type": "claim",
+  "recipient": "johndoe",
+  "data": {
+    "policy_holder": "johndoe",
+    "claimant":      "janedoe",
+    "type":          "Damage Review",
+    "due_date":      "2025-05-15T12:00:00.000Z",
+    "business":      "Auto Insurance",
+    "description":   "Review damages for claim #CLM-5678"
+  },
+  "is_flagged": true,
+  "priority": 2
+}
+
+Example News Body:
+{
+"type": "news",
+  "recipient": "johndoe",
+  "data": {
+    "title":       "Big Product Launch",
+    "body":        "Our new product goes live next week!",
+    "type":        "company",
+    "created_on":  "2025-04-01T10:00:00.000Z",
+    "expires_on":  "2025-05-01T10:00:00.000Z"
+  },
+  "is_flagged": false,
+  "priority": 1
+}
+
 ```
 
 **Success Response (200)**
