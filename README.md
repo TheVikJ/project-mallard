@@ -172,13 +172,44 @@ Updates fields on the chosen notification subtype.
 **Request Body**
 
 ```json
+Policy Notificiaton
 {
-  "type": "policy",   // which subtype to update
-  "edits": {          // only allowed fields for that subtype
-    "subject": "New Subject",
-    "is_read": true
+  "type": "policy",
+  "edits": {
+    "policy_id":   9876,
+    "subject":     "New policy subject",
+    "body":        "Here’s the updated body text.",
+    "is_archived": true
   }
 }
+
+Claims Notification
+{
+  "type": "claim",
+  "edits": {
+    "policy_holder": "janedoe",
+    "claimant":      "johndoe",
+    "type":          "damage",
+    "due_date":      "2025-08-15T00:00:00.000Z",
+    "business":      "Auto",
+    "description":   "Updated description of the claim.",
+    "is_completed":  true
+  }
+}
+
+News Notification
+{
+  "type": "news",
+  "edits": {
+    "title":       "Updated News Title",
+    "body":        "Here’s the new body text for the news item.",
+    "type":        "company update",
+    "created_on":  "2025-05-01T12:00:00.000Z",
+    "expires_on":  "2025-07-01T00:00:00.000Z"
+  }
+}
+
+
 ```
 
 **Success (200)**
