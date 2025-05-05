@@ -33,6 +33,6 @@ async function verifyUser(userId: string, notifId: number): Promise<boolean> {
   const record = await prisma.notifications.findUnique({
     where: { id: notifId },
   });
-  return record?.sender === userId;
+  return record?.recipient === userId;
 }
 
