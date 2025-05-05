@@ -4,19 +4,19 @@ import prisma from '@/utils/prisma';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { username, first_name, last_name, password, usertype } = body;
+    const { username, first_name, last_name, password, userType } = body;
 
-    if (!username || !first_name || !last_name || !password || !usertype) {
+    if (!username || !first_name || !last_name || !password || !userType) {
       return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
     }
 
     // Validate usertype range
-    if (![1, 2, 3, 4].includes(usertype)) {
+    if (![1, 2, 3, 4].includes(userType)) {
       return NextResponse.json({ error: 'Invalid usertype' }, { status: 400 });
     }
 
     // Check if username already exists
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.users.findUnique({
       where: { username },
     });
 
@@ -25,13 +25,15 @@ export async function POST(req: NextRequest) {
     }
 
     // Create new user (no hashing as specified)
-    const newUser = await prisma.user.create({
+    const newUser = await prisma.users.create({
       data: {
         username,
         first_name,
         last_name,
         password,
-        UserType: usertype,
+        UserType: {
+          connect: { id: userType },
+        },
       },
     });
 

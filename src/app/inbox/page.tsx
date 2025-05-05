@@ -4,7 +4,7 @@
 import React, { useEffect, useState } from 'react';
 import { Mail, AlertCircle, Flag, Search, X, Sun, Moon } from 'lucide-react';
 
-type Priority = 'low' | 'medium' | 'high';
+type Priority = 'Low' | 'Medium' | 'High';
 type Folder = 'inbox' | 'flagged' | 'sent' | 'drafts';
 
 interface Message {
@@ -35,14 +35,20 @@ const allowedTypes: string[] = [
 ];
 
 const priorityColors: Record<Priority, string> = {
-  low: 'bg-yellow-100 text-yellow-700',
-  medium: 'bg-orange-100 text-orange-700',
-  high: 'bg-red-100 text-red-700',
+  Low: 'bg-yellow-100 text-yellow-700',
+  Medium: 'bg-orange-100 text-orange-700',
+  High: 'bg-red-100 text-red-700',
 };
+
+const allowedTypeColors: Record<string, string> = {
+  Claims: 'bg-blue-100 text-blue-700',
+  News: 'bg-green-100 text-green-700',
+  Policy: 'bg-purple-100 text-purple-700',
+  };
 
 
 const Sidebar: React.FC<SidebarProps> = ({ selected, setSelected, onCompose }) => (
-  <div className="w-48 bg-gray-100 dark:bg-gray-800 p-4 rounded-xl shadow-md">
+  <div className="w-48 bg-gray-100 dark:bg-gray-800 p-4 rounded-xl shadow-md self-start">
     <div
       className="bg-gray-300 dark:bg-gray-700 text-center py-2 font-semibold rounded-md mb-6 cursor-pointer hover:bg-gray-400 dark:hover:bg-gray-600"
       onClick={onCompose}
@@ -76,7 +82,7 @@ const MessageList: React.FC = () => {
     type: '',
     subject: '',
     text: '',
-    priority: 'low',
+    priority: 'Low',
     flagged: false,
     folder: 'drafts',
     is_active: true,
@@ -97,7 +103,7 @@ const MessageList: React.FC = () => {
       timestamp: "2025-03-30 14:44",
       is_read: false,
       is_active: true,
-      priority: "high",
+      priority: "High",
       flagged: false,
       folder: "inbox",
       text: ''
@@ -111,7 +117,7 @@ const MessageList: React.FC = () => {
       timestamp: "2025-03-30 15:00",
       is_read: true,
       is_active: true,
-      priority: "medium",
+      priority: "Medium",
       flagged: false,
       folder: "inbox",
       text: ''
@@ -125,7 +131,7 @@ const MessageList: React.FC = () => {
       timestamp: "2025-03-29 09:10",
       is_read: true,
       is_active: true,
-      priority: "low",
+      priority: "Low",
       flagged: false,
       folder: "inbox",
       text: ''
@@ -139,7 +145,7 @@ const MessageList: React.FC = () => {
       timestamp: "2025-03-30 11:00",
       is_read: false,
       is_active: true,
-      priority: "medium",
+      priority: "Medium",
       flagged: true,
       folder: "inbox",
       text: ''
@@ -153,7 +159,7 @@ const MessageList: React.FC = () => {
       timestamp: "2025-03-28 16:43",
       is_read: true,
       is_active: true,
-      priority: "low",
+      priority: "Low",
       flagged: false,
       folder: "inbox",
       text: ''
@@ -167,7 +173,7 @@ const MessageList: React.FC = () => {
       timestamp: "2025-03-27 13:27",
       is_read: true,
       is_active: true,
-      priority: "high",
+      priority: "High",
       flagged: true,
       folder: "inbox",
       text: ''
@@ -181,7 +187,7 @@ const MessageList: React.FC = () => {
       timestamp: "2025-03-30 10:00",
       is_read: false,
       is_active: true,
-      priority: "medium",
+      priority: "Medium",
       flagged: false,
       folder: "inbox",
       text: ''
@@ -195,7 +201,7 @@ const MessageList: React.FC = () => {
       timestamp: "2025-03-31 07:15",
       is_read: true,
       is_active: true,
-      priority: "low",
+      priority: "Low",
       flagged: false,
       folder: "inbox",
       text: ''
@@ -209,7 +215,7 @@ const MessageList: React.FC = () => {
       timestamp: "2025-03-30 18:25",
       is_read: true,
       is_active: true,
-      priority: "medium",
+      priority: "Medium",
       flagged: true,
       folder: "inbox",
       text: ''
@@ -223,7 +229,7 @@ const MessageList: React.FC = () => {
       timestamp: "2025-03-28 17:50",
       is_read: true,
       is_active: true,
-      priority: "high",
+      priority: "High",
       flagged: false,
       folder: "inbox",
       text: ''
@@ -237,7 +243,7 @@ const MessageList: React.FC = () => {
       timestamp: "2025-03-28 17:30",
       is_read: false,
       is_active: true,
-      priority: "medium",
+      priority: "Medium",
       flagged: false,
       folder: "inbox",
       text: ''
@@ -251,7 +257,7 @@ const MessageList: React.FC = () => {
       timestamp: "2025-03-27 16:00",
       is_read: true,
       is_active: true,
-      priority: "low",
+      priority: "Low",
       flagged: true,
       folder: "inbox",
       text: ''
@@ -265,7 +271,7 @@ const MessageList: React.FC = () => {
       timestamp: "2025-03-30 12:44",
       is_read: false,
       is_active: true,
-      priority: "medium",
+      priority: "Medium",
       flagged: false,
       folder: "inbox",
       text: ''
@@ -279,7 +285,7 @@ const MessageList: React.FC = () => {
       timestamp: "2025-03-31 09:30",
       is_read: true,
       is_active: true,
-      priority: "high",
+      priority: "High",
       flagged: false,
       folder: "inbox",
       text: ''
@@ -293,7 +299,7 @@ const MessageList: React.FC = () => {
       timestamp: "2025-03-31 10:20",
       is_read: false,
       is_active: true,
-      priority: "medium",
+      priority: "Medium",
       flagged: false,
       folder: "inbox",
       text: ''
@@ -343,7 +349,7 @@ const MessageList: React.FC = () => {
     setNewMessage({
       type: "",
       subject: "",
-      priority: "low",
+      priority: "Low",
       flagged: false,
       folder: "drafts",
       is_active: true,
@@ -402,42 +408,40 @@ const MessageList: React.FC = () => {
            {filteredMessages.map((msg) => (
             <div
               key={msg.notification_id}
-              className={`flex items-center justify-between border-b py-3 ${!msg.is_active ? 'opacity-50' : ''}`}
+              className={`flex items-center justify-between bg-gray-100 dark:bg-gray-700 rounded-full px-4 py-2 mb-3 shadow-sm ${!msg.is_active ? 'opacity-50' : ''}`}
             >
               {/* Date + Flag */}
-              <div className="flex items-center w-32 text-sm text-gray-500">
-                {msg.flagged && msg.folder !== 'drafts' && (
-                  <Flag className="w-4 h-4 text-red-500 mr-2" />
-                )}
-                {msg.timestamp}
+              <div className="flex items-center w-30 text-sm text-gray-500">
+                <div className="w-9 flex justify-center">
+                  {msg.flagged && msg.folder !== 'drafts' && <Flag className="w-4 h-4 text-red-500" />}
+                </div>
+                <div className="flex-1 text-left">{msg.timestamp}</div>
               </div>
 
               <div className="flex-1 px-4 text-gray-900 font-medium flex items-center gap-2">
-  {msg.subject.length >= 30 ? (msg.subject.slice(0, 30) + '...') : msg.subject}
-</div>
+                {msg.subject.length >= 30 ? (msg.subject.slice(0, 30) + '...') : msg.subject}
+              </div>
 
-              {/* Type */}
-              <div className="flex gap-2 items-center">
-              <span
-                  className={`px-2 py-1 text-xs rounded-full font-semibold ${allowedTypeColors[msg.type]}`}
-                >
-                  {msg.type}
-                </span>
+              <div className="grid grid-cols-2 gap-4 w-35 ml-4 shrink-0 text-sm text-gray-600 dark:text-gray-300">
+                {/* Type */}
+                <div className="flex justify-center">
+                  <span className={`px-2 py-1 text-xs rounded-full font-semibold ${allowedTypeColors[msg.type]}`}>
+                    {msg.type}
+                  </span>
+                </div>
 
-
-              {/* Priority */}
-                <span
-                  className={`px-2 py-1 text-xs rounded-full font-semibold ${priorityColors[msg.priority]}`}
-                >
-                  {msg.priority}
-                </span>
+                {/* Priority */}
+                <div className="flex justify-center">
+                  <span className={`px-2 py-1 text-xs rounded-full font-semibold ${priorityColors[msg.priority]}`}>
+                    {msg.priority}
+                  </span>
+                </div>
               </div>
              
             </div>
           ))}
+          </div>
         </div>
-      </div>
-
       {isComposing && (
     <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center z-50">
       {/* Background Overlay */}

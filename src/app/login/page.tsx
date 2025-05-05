@@ -1,6 +1,9 @@
 "use client";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useEffect } from "react";
+import axios from "axios";
+import { users } from "@prisma/client";
+
 import { useForm, SubmitHandler } from "react-hook-form";
 import Image from "next/image";
 import duckCreekImage from '../../../public/duckCreek.png';
@@ -8,7 +11,7 @@ import Link from "next/link";
 
 // Types for form input
 type SignInFormInputs = {
-  email: string;
+  username: string;
   password: string;
 };
 
@@ -43,19 +46,47 @@ export default function SignInForm() {
     formState: { errors },
   } = useForm<SignInFormInputs>();
   const router = useRouter(); 
-  const onSubmit: SubmitHandler<SignInFormInputs> = (data) => {
-    const stored = localStorage.getItem("mallard-user");
-  
-    if (!stored) {
-      alert("No registered user found. Please sign up first.");
-      return;
-    }
-    const user = JSON.parse(stored);
-  
-    if (user.email === data.email && user.password === data.password) {
+
+  useEffect(() => {
+    (async () => {
+      const stored = localStorage.getItem("mallard-user");
+      if (!stored) return;
+
+      const storedUser = JSON.parse(stored);
+      if (storedUser && storedUser.username && storedUser.password) {
+        const user = await attemptLogin(storedUser.username, storedUser.password);
+        if (user) router.push("inbox");
+      }
+    })();
+  }, [router]);
+
+  const onSubmit: SubmitHandler<SignInFormInputs> = async (data) => {
+    const user = await attemptLogin(data.username, data.password);
+    if (user && user.username && user.password) {
+      localStorage.setItem("mallard-user", JSON.stringify({ username: user.username, password: user.password }));
       router.push("/inbox");
-    } else {
-      alert("Incorrect email or password.");
+    }
+  };
+
+  const attemptLogin = async (username: string, password: string) => {
+    try {
+      const record = await axios.post<users>("/api/login", {
+        username: username,
+        password: password,
+      });
+      return record.data;
+    }
+    catch (error: any) {
+      if (error.response) {
+        if (error.response.status === 401)
+          alert("No user found. Double-check your credentials or sign up.");
+        else if (error.response.status === 500)
+          alert("Server error. Please try again later.");
+      }
+      else if (error.request)
+        alert("Request error. Please try again.");
+      else
+        alert("An unexpected error occurred. Please try again later.");
     }
   };
 
@@ -71,19 +102,15 @@ export default function SignInForm() {
 
         <div className="mb-6">
           <Input
-            placeholder="Email"
-            {...register("email", {
-              required: "Email is required",
-              pattern: {
-                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: "Enter a valid email",
-              },
+            placeholder="Username"
+            {...register("username", {
+              required: "Username is required",
             })}
             className="bg-[#392D7C] text-white placeholder:text-white shadow-md"
           />
-          {errors.email && (
+          {errors.username && (
             <p className="text-red-300 text-sm mt-1">
-              {errors.email.message}
+              {errors.username.message}
             </p>
           )}
         </div>

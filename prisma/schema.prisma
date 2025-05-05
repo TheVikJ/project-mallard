@@ -15,10 +15,10 @@ model user_types {
   type          String
   created_at    DateTime        @default(now()) @db.Timestamptz()
 
-  User          user[]
+  User          users[]
 }
 
-model user {
+model users {
   username      String          @id
   first_name     String
   last_name     String
@@ -45,8 +45,8 @@ model notifications {
   is_flagged     Boolean         @default(false)
   created_at    DateTime        @default(now())
 
-  Sender        user            @relation("sender", fields: [sender], references: [username])
-  Recipient     user            @relation("recipient", fields: [recipient], references: [username])
+  Sender        users           @relation("sender", fields: [sender], references: [username])
+  Recipient     users           @relation("recipient", fields: [recipient], references: [username])
 
   PolicyNotif   policy_notifs?
   ClaimNotif    claim_notifs?
@@ -79,8 +79,8 @@ model claim_notifs {
 
   Notification   notifications    @relation(fields: [notif_id], references: [id])
   
-  PolicyHolder  user            @relation("policy_holder", fields: [policy_holder], references: [username])
-  Claimant      user            @relation("claimant", fields: [claimant], references: [username])
+  PolicyHolder  users           @relation("policy_holder", fields: [policy_holder], references: [username])
+  Claimant      users           @relation("claimant", fields: [claimant], references: [username])
 }
 
 model news_notifs {
