@@ -78,6 +78,7 @@ const MessageList: React.FC = () => {
   const [search, setSearch] = useState<string>('');
   const [isComposing, setIsComposing] = useState<boolean>(false);
   const [darkMode, setDarkMode] = useState<boolean>(false);
+  const [selectedMessage, setSelectedMessage] = useState<Message | null>(null); // State to track selected message
   const [newMessage, setNewMessage] = useState<Partial<Message>>({
     type: '',
     subject: '',
@@ -95,202 +96,6 @@ const MessageList: React.FC = () => {
 
   const [messageData, setMessageData] = useState<Message[]>([
     {
-      notification_id: 8001,
-      sender_id: 202,
-      recipient_id: 201,
-      type: "Policy",
-      subject: "Your Policy Renewal Notice – Action Required",
-      timestamp: "2025-03-30 14:44",
-      is_read: false,
-      is_active: true,
-      priority: "High",
-      flagged: false,
-      folder: "inbox",
-      text: ''
-    },
-    {
-      notification_id: 8002,
-      sender_id: 201,
-      recipient_id: 202,
-      type: "Claims",
-      subject: "Claim #34321: Additional Information Needed",
-      timestamp: "2025-03-30 15:00",
-      is_read: true,
-      is_active: true,
-      priority: "Medium",
-      flagged: false,
-      folder: "inbox",
-      text: ''
-    },
-    {
-      notification_id: 8003,
-      sender_id: 205,
-      recipient_id: 204,
-      type: "Claims",
-      subject: "Proof of Address Required to Finalize Your Claim",
-      timestamp: "2025-03-29 09:10",
-      is_read: true,
-      is_active: true,
-      priority: "Low",
-      flagged: false,
-      folder: "inbox",
-      text: ''
-    },
-    {
-      notification_id: 8004,
-      sender_id: 208,
-      recipient_id: 207,
-      type: "Policy",
-      subject: "Temporary Coverage Summary for Rental Vehicle",
-      timestamp: "2025-03-30 11:00",
-      is_read: false,
-      is_active: true,
-      priority: "Medium",
-      flagged: true,
-      folder: "inbox",
-      text: ''
-    },
-    {
-      notification_id: 8005,
-      sender_id: 210,
-      recipient_id: 209,
-      type: "News",
-      subject: "Your Monthly Statement is Ready",
-      timestamp: "2025-03-28 16:43",
-      is_read: true,
-      is_active: true,
-      priority: "Low",
-      flagged: false,
-      folder: "inbox",
-      text: ''
-    },
-    {
-      notification_id: 8006,
-      sender_id: 203,
-      recipient_id: 213,
-      type: "News",
-      subject: "Storm Damage Coverage Tips You Should Know",
-      timestamp: "2025-03-27 13:27",
-      is_read: true,
-      is_active: true,
-      priority: "High",
-      flagged: true,
-      folder: "inbox",
-      text: ''
-    },
-    {
-      notification_id: 8007,
-      sender_id: 206,
-      recipient_id: 202,
-      type: "News",
-      subject: "Update: New Discount Opportunities Available",
-      timestamp: "2025-03-30 10:00",
-      is_read: false,
-      is_active: true,
-      priority: "Medium",
-      flagged: false,
-      folder: "inbox",
-      text: ''
-    },
-    {
-      notification_id: 8008,
-      sender_id: 205,
-      recipient_id: 203,
-      type: "Claims",
-      subject: "We’ve Received Your Claim – What Happens Next",
-      timestamp: "2025-03-31 07:15",
-      is_read: true,
-      is_active: true,
-      priority: "Low",
-      flagged: false,
-      folder: "inbox",
-      text: ''
-    },
-    {
-      notification_id: 8009,
-      sender_id: 204,
-      recipient_id: 210,
-      type: "Policy",
-      subject: "Verify Your Contact Information to Avoid Delays",
-      timestamp: "2025-03-30 18:25",
-      is_read: true,
-      is_active: true,
-      priority: "Medium",
-      flagged: true,
-      folder: "inbox",
-      text: ''
-    },
-    {
-      notification_id: 8010,
-      sender_id: 208,
-      recipient_id: 210,
-      type: "Policy",
-      subject: "Let’s Review Your Auto Policy Together",
-      timestamp: "2025-03-28 17:50",
-      is_read: true,
-      is_active: true,
-      priority: "High",
-      flagged: false,
-      folder: "inbox",
-      text: ''
-    },
-    {
-      notification_id: 8011,
-      sender_id: 207,
-      recipient_id: 206,
-      type: "Claims",
-      subject: "Claim #98721 has been recieved and is now being reviewed",
-      timestamp: "2025-03-28 17:30",
-      is_read: false,
-      is_active: true,
-      priority: "Medium",
-      flagged: false,
-      folder: "inbox",
-      text: ''
-    },
-    {
-      notification_id: 8012,
-      sender_id: 202,
-      recipient_id: 209,
-      type: "Claims",
-      subject: "Claim #21843 has been reviewed",
-      timestamp: "2025-03-27 16:00",
-      is_read: true,
-      is_active: true,
-      priority: "Low",
-      flagged: true,
-      folder: "inbox",
-      text: ''
-    },
-    {
-      notification_id: 8013,
-      sender_id: 202,
-      recipient_id: 210,
-      type: "News",
-      subject: "Welcome to DuckCreek – What’s Next",
-      timestamp: "2025-03-30 12:44",
-      is_read: false,
-      is_active: true,
-      priority: "Medium",
-      flagged: false,
-      folder: "inbox",
-      text: ''
-    },
-    {
-      notification_id: 8014,
-      sender_id: 210,
-      recipient_id: 202,
-      type: "Policy",
-      subject: "Your Insurance Card is Now Available Online",
-      timestamp: "2025-03-31 09:30",
-      is_read: true,
-      is_active: true,
-      priority: "High",
-      flagged: false,
-      folder: "inbox",
-      text: ''
-    },
-    {
       notification_id: 8015,
       sender_id: 201,
       recipient_id: 202,
@@ -305,6 +110,10 @@ const MessageList: React.FC = () => {
       text: ''
     },
   ]);
+
+  const handleBackToList = () => {
+    setSelectedMessage(null); // Reset selected message to go back to the list
+  };
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode);
@@ -391,57 +200,81 @@ const MessageList: React.FC = () => {
       
       <div className="flex w-full max-w-6xl mx-auto p-4 gap-6">
         <Sidebar selected={selectedFolder} setSelected={setSelectedFolder} onCompose={() => setIsComposing(true)} />
-        <div className="flex-1">      
-          {/* Search Bar */}
-          <div className="mb-4 flex items-center gap-2 border border-gray-300 dark:border-gray-700 rounded-md px-3 py-2 w-full max-w-md bg-white dark:bg-gray-800 shadow-sm">
-            <Search className="w-4 h-4 text-gray-400" />
-            <input
-              type="subject"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by message type..."
-              className="w-full outline-none text-sm bg-transparent text-gray-900 dark:text-gray-100"
-            />
-          </div>
-
-           {/* Message List */}
-           {filteredMessages.map((msg) => (
-            <div
-              key={msg.notification_id}
-              className={`flex items-center justify-between bg-gray-100 dark:bg-gray-700 rounded-full px-4 py-2 mb-3 shadow-sm ${!msg.is_active ? 'opacity-50' : ''}`}
-            >
-              {/* Date + Flag */}
-              <div className="flex items-center w-30 text-sm text-gray-500">
-                <div className="w-9 flex justify-center">
-                  {msg.flagged && msg.folder !== 'drafts' && <Flag className="w-4 h-4 text-red-500" />}
-                </div>
-                <div className="flex-1 text-left">{msg.timestamp}</div>
+        <div className="flex-1">
+          {!selectedMessage ? (
+            <>
+              {/* Search Bar */}
+              <div className="mb-4 flex items-center gap-2 border border-gray-300 dark:border-gray-700 rounded-md px-3 py-2 w-full max-w-md bg-white dark:bg-gray-800 shadow-sm">
+                <Search className="w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search by message type..."
+                  className="w-full outline-none text-sm bg-transparent text-gray-900 dark:text-gray-100"
+                />
               </div>
 
-              <div className="flex-1 px-4 text-gray-900 font-medium flex items-center gap-2">
-                {msg.subject.length >= 30 ? (msg.subject.slice(0, 30) + '...') : msg.subject}
-              </div>
+              {/* Message List */}
+              {filteredMessages.map((msg) => (
+                <div
+                  key={msg.notification_id}
+                  onClick={() => setSelectedMessage(msg)}
+                  className={`cursor-pointer flex items-center justify-between bg-gray-100 dark:bg-gray-700 rounded-full px-4 py-2 mb-3 shadow-sm ${!msg.is_active ? 'opacity-50' : ''}`}
+                >
+                  {/* Date + Flag */}
+                  <div className="flex items-center w-30 text-sm text-gray-500">
+                    <div className="w-9 flex justify-center">
+                      {msg.flagged && msg.folder !== 'drafts' && <Flag className="w-4 h-4 text-red-500" />}
+                    </div>
+                    <div className="flex-1 text-left">{msg.timestamp}</div>
+                  </div>
 
-              <div className="grid grid-cols-2 gap-4 w-35 ml-4 shrink-0 text-sm text-gray-600 dark:text-gray-300">
-                {/* Type */}
-                <div className="flex justify-center">
-                  <span className={`px-2 py-1 text-xs rounded-full font-semibold ${allowedTypeColors[msg.type]}`}>
-                    {msg.type}
-                  </span>
-                </div>
+                  <div className="flex-1 px-4 text-gray-900 font-medium flex items-center gap-2">
+                    {msg.subject.length >= 30 ? (msg.subject.slice(0, 30) + '...') : msg.subject}
+                  </div>
 
-                {/* Priority */}
-                <div className="flex justify-center">
-                  <span className={`px-2 py-1 text-xs rounded-full font-semibold ${priorityColors[msg.priority]}`}>
-                    {msg.priority}
-                  </span>
+                  <div className="grid grid-cols-2 gap-4 w-35 ml-4 shrink-0 text-sm text-gray-600 dark:text-gray-300">
+                    {/* Type */}
+                    <div className="flex justify-center">
+                      <span className={`px-2 py-1 text-xs rounded-full font-semibold ${allowedTypeColors[msg.type]}`}>
+                        {msg.type}
+                      </span>
+                    </div>
+
+                    {/* Priority */}
+                    <div className="flex justify-center">
+                      <span className={`px-2 py-1 text-xs rounded-full font-semibold ${priorityColors[msg.priority]}`}>
+                        {msg.priority}
+                      </span>
+                    </div>
+                  </div>
                 </div>
+              ))}
+            </>
+          ) : (
+            <div className="p-4 bg-white dark:bg-gray-800 rounded-xl shadow-md">
+              <button onClick={handleBackToList} className="mb-4 text-blue-600 hover:underline">
+                Back to list
+              </button>
+              <h2 className="text-2xl font-semibold mb-2">{selectedMessage.subject}</h2>
+              <div className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                <span>From: {selectedMessage.sender_id}</span> | <span>To: {selectedMessage.recipient_id}</span> | <span>{selectedMessage.timestamp}</span>
               </div>
-             
+              <div className="flex items-center gap-2 mb-4">
+                <span className={`px-2 py-1 text-xs rounded-full font-semibold ${allowedTypeColors[selectedMessage.type]}`}>
+                  {selectedMessage.type}
+                </span>
+                <span className={`px-2 py-1 text-xs rounded-full font-semibold ${priorityColors[selectedMessage.priority]}`}>
+                  {selectedMessage.priority}
+                </span>
+                {selectedMessage.flagged && <Flag className="w-4 h-4 text-red-500" />}
+              </div>
+              <p className="text-gray-800 dark:text-gray-200 whitespace-pre-wrap">{selectedMessage.text}</p>
             </div>
-          ))}
-          </div>
+          )}
         </div>
+      </div>
       {isComposing && (
     <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center z-50">
       {/* Background Overlay */}
