@@ -3,28 +3,17 @@
 
 import React, { useEffect, useState } from 'react';
 import { Mail, AlertCircle, Flag, Search, X, Sun, Moon } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import axios from 'axios';
+
+import { Message, Filters } from '@/utils/types';
 
 type Priority = 'Low' | 'Medium' | 'High';
 type Folder = 'inbox' | 'flagged' | 'sent' | 'drafts';
 
-interface Message {
-  notification_id: number;
-  sender_id: number;
-  recipient_id: number;
-  type: string;
-  text: string;
-  subject: string;
-  timestamp: string;
-  is_read: boolean;
-  is_active: boolean;
-  priority: Priority;
-  flagged: boolean;
-  folder: Folder | string;
-}
-
 interface SidebarProps {
   selected: string;
-  setSelected: React.Dispatch<React.SetStateAction<string>>;
+  setSelected: React.Dispatch<React.SetStateAction<Folder>>;
   onCompose: () => void;
 }
 
@@ -56,25 +45,30 @@ const Sidebar: React.FC<SidebarProps> = ({ selected, setSelected, onCompose }) =
       Compose
     </div>
     <ul className="space-y-2">
-      {['inbox', 'flagged', 'sent', 'drafts'].map((item) => (
-        <li
-          key={item}
-          className={`capitalize px-3 py-2 rounded-md cursor-pointer ${
-            selected === item
-              ? 'bg-blue-200 dark:bg-blue-600 font-semibold'
-              : 'hover:bg-gray-200 dark:hover:bg-gray-600'
-          }`}
-          onClick={() => setSelected(item)}
-        >
-          {item}
-        </li>
-      ))}
+      {(() => {
+        const folders: Folder[] = ['inbox', 'flagged', 'sent', 'drafts'];
+        return folders.map((item) => (
+          <li
+            key={item}
+            className={`capitalize px-3 py-2 rounded-md cursor-pointer ${
+              selected === item
+                ? 'bg-blue-200 dark:bg-blue-600 font-semibold'
+                : 'hover:bg-gray-200 dark:hover:bg-gray-600'
+            }`}
+            onClick={() => setSelected(item)}
+          >
+            {item}
+          </li>
+        ));
+      })()}
     </ul>
   </div>
 );
 
 const MessageList: React.FC = () => {
-  const [selectedFolder, setSelectedFolder] = useState<string>('inbox');
+  const router = useRouter();
+
+  const [selectedFolder, setSelectedFolder] = useState<Folder>('inbox');
   const [search, setSearch] = useState<string>('');
   const [isComposing, setIsComposing] = useState<boolean>(false);
   const [darkMode, setDarkMode] = useState<boolean>(false);
@@ -82,34 +76,55 @@ const MessageList: React.FC = () => {
   const [newMessage, setNewMessage] = useState<Partial<Message>>({
     type: '',
     subject: '',
-    text: '',
-    priority: 'Low',
-    flagged: false,
-    folder: 'drafts',
-    is_active: true,
+    body: '',
+    priority: 0,
+    is_flagged: false,
     is_read: false,
-    notification_id: Date.now(),
-    sender_id: 201,
-    recipient_id: 202,
-    timestamp: new Date().toISOString(),
+    sender: '',
+    recipient: '',
+    timestamp: new Date(),
   });
 
-  const [messageData, setMessageData] = useState<Message[]>([
-    {
-      notification_id: 8015,
-      sender_id: 201,
-      recipient_id: 202,
-      type: "News",
-      subject: "Please verify your email for DuckCreek Notification services",
-      timestamp: "2025-03-31 10:20",
-      is_read: false,
-      is_active: true,
-      priority: "Medium",
-      flagged: false,
-      folder: "inbox",
-      text: ''
-    },
-  ]);
+  const [messageData, setMessageData] = useState<Message[]>([]);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('mallard-user');
+    if (!stored || !JSON.parse(stored).username) {
+      alert('Authentication error. Please log in again.')
+      router.push('/login');
+      return;
+    }
+    const username = JSON.parse(stored).username;
+
+    const filters: Map<Folder, Filters> = new Map<Folder, Filters>([
+      ['inbox', {
+        recipient: username || undefined,
+        isDraft: false,
+      }],
+      ['drafts', {
+        sender: username || undefined,
+        isDraft: true,
+      }],
+      ['flagged', {
+        recipient: username || undefined,
+        isDraft: false,
+        isFlagged: true,
+      }],
+      ['sent', {
+        sender: username || undefined,
+        isDraft: false,
+      }],
+    ]);
+
+    (async () => {
+      const filter = filters.get(selectedFolder);
+
+      const res = await axios.post<Message[]>('/api/getallnotifs', filter);
+      const data: Message[] = res.data;
+
+      setMessageData(data);
+    })();
+  }, [router, selectedFolder]);
 
   const handleBackToList = () => {
     setSelectedMessage(null); // Reset selected message to go back to the list
@@ -119,69 +134,69 @@ const MessageList: React.FC = () => {
     document.documentElement.classList.toggle('dark', darkMode);
   }, [darkMode]);
 
-  const handleSend = () => {
-    if (!newMessage.type || !newMessage.subject) return;
+  // const handleSend = () => {
+  //   if (!newMessage.type || !newMessage.subject) return;
 
-    setMessageData([
-      {
-        ...(newMessage as Message),
-        folder: 'sent',
-        notification_id: Date.now(),
-        timestamp: new Date().toISOString(),
-      },
-      ...messageData,
-    ]);
-    setIsComposing(false);
-    setNewMessage({});
-  };
+  //   setMessageData([
+  //     {
+  //       ...(newMessage as Message),
+  //       folder: 'sent',
+  //       notification_id: Date.now(),
+  //       timestamp: new Date(),
+  //     },
+  //     ...messageData,
+  //   ]);
+  //   setIsComposing(false);
+  //   setNewMessage({});
+  // };
 
-  const handleSaveDraft = () => {
-    if (!newMessage.type || !newMessage.subject) return; // Ensure required fields are not empty
+  // const handleSaveDraft = () => {
+  //   if (!newMessage.type || !newMessage.subject) return; // Ensure required fields are not empty
   
-    setMessageData((prevMessages) => [
-      {
-        ...(newMessage as Message),
-        folder: "drafts",
-        notification_id: Date.now(),
-        timestamp: new Date().toISOString(),
-      },
-      ...prevMessages,
-    ]);
+  //   setMessageData((prevMessages) => [
+  //     {
+  //       ...(newMessage as Message),
+  //       folder: "drafts",
+  //       notification_id: Date.now(),
+  //       timestamp: new Date().toISOString(),
+  //     },
+  //     ...prevMessages,
+  //   ]);
   
-    // Close the popup
-    setIsComposing(false);
+  //   // Close the popup
+  //   setIsComposing(false);
   
-    // Ensure the drafts folder is selected in the sidebar
-    setSelectedFolder("drafts");
+  //   // Ensure the drafts folder is selected in the sidebar
+  //   setSelectedFolder("drafts");
   
-    // Reset newMessage state so input fields clear
-    setNewMessage({
-      type: "",
-      subject: "",
-      priority: "Low",
-      flagged: false,
-      folder: "drafts",
-      is_active: true,
-      is_read: false,
-      notification_id: Date.now(),
-      sender_id: 201,
-      recipient_id: 202,
-      timestamp: new Date().toISOString(),
-    });
-  };
+  //   // Reset newMessage state so input fields clear
+  //   setNewMessage({
+  //     type: "",
+  //     subject: "",
+  //     priority: "Low",
+  //     flagged: false,
+  //     folder: "drafts",
+  //     is_active: true,
+  //     is_read: false,
+  //     notification_id: Date.now(),
+  //     sender_id: 201,
+  //     recipient_id: 202,
+  //     timestamp: new Date().toISOString(),
+  //   });
+  // };
 
-  const filteredMessages = messageData.filter((msg) => {
-    const matchesFolder =
-      selectedFolder === 'flagged'
-        ? msg.flagged && msg.folder !== 'drafts'
-        : msg.folder === selectedFolder;
+  // const filteredMessages = messageData.filter((msg) => {
+  //   const matchesFolder =
+  //     selectedFolder === 'flagged'
+  //       ? msg.is_flagged && msg.folder !== 'drafts'
+  //       : msg.folder === selectedFolder;
 
-    const matchesSearch = msg.type
-      .toLowerCase()
-      .includes(search.toLowerCase());
+  //   const matchesSearch = msg.type
+  //     .toLowerCase()
+  //     .includes(search.toLowerCase());
 
-    return matchesFolder && matchesSearch;
-  });
+  //   return matchesFolder && matchesSearch;
+  // });
 
   return (
     <div className="relative min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
@@ -216,18 +231,18 @@ const MessageList: React.FC = () => {
               </div>
 
               {/* Message List */}
-              {filteredMessages.map((msg) => (
+              {messageData.map((msg) => (
                 <div
-                  key={msg.notification_id}
+                  key={msg.id}
                   onClick={() => setSelectedMessage(msg)}
-                  className={`cursor-pointer flex items-center justify-between bg-gray-100 dark:bg-gray-700 rounded-full px-4 py-2 mb-3 shadow-sm ${!msg.is_active ? 'opacity-50' : ''}`}
+                  className={'cursor-pointer flex items-center justify-between bg-gray-100 dark:bg-gray-700 rounded-full px-4 py-2 mb-3 shadow-sm'}
                 >
                   {/* Date + Flag */}
                   <div className="flex items-center w-30 text-sm text-gray-500">
                     <div className="w-9 flex justify-center">
-                      {msg.flagged && msg.folder !== 'drafts' && <Flag className="w-4 h-4 text-red-500" />}
+                      {msg.is_flagged && selectedFolder !== 'drafts' && <Flag className="w-4 h-4 text-red-500" />}
                     </div>
-                    <div className="flex-1 text-left">{msg.timestamp}</div>
+                    <div className="flex-1 text-left">{new Date(msg.timestamp).toDateString()}</div>
                   </div>
 
                   <div className="flex-1 px-4 text-gray-900 font-medium flex items-center gap-2">
@@ -244,9 +259,15 @@ const MessageList: React.FC = () => {
 
                     {/* Priority */}
                     <div className="flex justify-center">
-                      <span className={`px-2 py-1 text-xs rounded-full font-semibold ${priorityColors[msg.priority]}`}>
-                        {msg.priority}
-                      </span>
+                      {(() => {
+                        const _: Priority = msg.priority === 0 ? 'Low' :
+                                            msg.priority === 1 ? 'Medium' : 'High';
+                        return (
+                          <span className={`px-2 py-1 text-xs rounded-full font-semibold ${priorityColors[_]}`}>
+                            {_}
+                          </span>
+                        );
+                      })()}
                     </div>
                   </div>
                 </div>
@@ -259,18 +280,26 @@ const MessageList: React.FC = () => {
               </button>
               <h2 className="text-2xl font-semibold mb-2">{selectedMessage.subject}</h2>
               <div className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                <span>From: {selectedMessage.sender_id}</span> | <span>To: {selectedMessage.recipient_id}</span> | <span>{selectedMessage.timestamp}</span>
+                <span>From: {selectedMessage.sender}</span> | <span>To: {selectedMessage.recipient}</span> | <span>{new Date(selectedMessage.timestamp).toISOString()}</span>
               </div>
               <div className="flex items-center gap-2 mb-4">
                 <span className={`px-2 py-1 text-xs rounded-full font-semibold ${allowedTypeColors[selectedMessage.type]}`}>
                   {selectedMessage.type}
                 </span>
-                <span className={`px-2 py-1 text-xs rounded-full font-semibold ${priorityColors[selectedMessage.priority]}`}>
-                  {selectedMessage.priority}
-                </span>
-                {selectedMessage.flagged && <Flag className="w-4 h-4 text-red-500" />}
+
+                {(() => {
+                  const _: Priority = selectedMessage.priority === 0 ? 'Low' :
+                                      selectedMessage.priority === 1 ? 'Medium' : 'High';
+                  return (
+                    <span className={`px-2 py-1 text-xs rounded-full font-semibold ${priorityColors[_]}`}>
+                      {_}
+                    </span>
+                  );
+                })()}
+
+                {selectedMessage.is_flagged && <Flag className="w-4 h-4 text-red-500" />}
               </div>
-              <p className="text-gray-800 dark:text-gray-200 whitespace-pre-wrap">{selectedMessage.text}</p>
+              <p className="text-gray-800 dark:text-gray-200 whitespace-pre-wrap">{selectedMessage.body}</p>
             </div>
           )}
         </div>
