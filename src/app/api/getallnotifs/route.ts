@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     if (typeof body !== 'object' || body === null) throw new Error('Invalid body');
 
     // get keys of body
-    const allowedKeys = ['type', 'sender', 'recipient', 'priority', 'isFlagged', 'isDraft'];
+    const allowedKeys = ['type', 'sender', 'recipient', 'priority', 'is_flagged', 'is_draft'];
     const keys = Object.keys(body);
 
     // check that the body's keys are only those in allowedKeys
@@ -25,8 +25,8 @@ export async function POST(req: NextRequest) {
     if ('sender' in body && typeof body.sender !== 'string') throw new Error('\'sender\' must be of type string');
     if ('recipient' in body && typeof body.recipient !== 'string') throw new Error('\'recipient\' must be of type string');
     if ('priority' in body && typeof body.priority !== 'number') throw new Error('\'priority\' must be of type number');
-    if ('isFlagged' in body && typeof body.isFlagged !== 'boolean') throw new Error('\'isFlagged\' must be of type boolean');
-    if ('isDraft' in body && typeof body.isDraft !== 'boolean') throw new Error('\'isDraft\' must be of type boolean');
+    if ('is_flagged' in body && typeof body.is_flagged !== 'boolean') throw new Error('\'is_flagged\' must be of type boolean');
+    if ('is_draft' in body && typeof body.is_draft !== 'boolean') throw new Error('\'is_draft\' must be of type boolean');
 
     return true;
   };
@@ -50,8 +50,8 @@ export async function POST(req: NextRequest) {
     let res: Message[];
 
     // format filters
-    const { type, isFlagged, isDraft, ..._filters} = body;
-    const filters = { is_flagged: isFlagged, is_draft: isDraft, ..._filters };
+    const { type, is_flagged, is_draft, ..._filters} = body;
+    const filters = { is_flagged: is_flagged, is_draft: is_draft, ..._filters };
 
     // based on type, get notifications
     if (type === undefined) res = await getAll(filters);

@@ -43,7 +43,9 @@ model notifications {
   is_read       Boolean         @default(false)
   is_active     Boolean         @default(true)
   is_flagged     Boolean         @default(false)
+  is_draft      Boolean         @default(false)
   created_at    DateTime        @default(now())
+
 
   Sender        users           @relation("sender", fields: [sender], references: [username])
   Recipient     users           @relation("recipient", fields: [recipient], references: [username])
@@ -87,7 +89,7 @@ model news_notifs {
   id            Int             @id @default(autoincrement())
   notif_id      Int             @unique
   title         String
-  body          String
+  body          String          @default("")
   type          String
   created_on    DateTime        @default(now()) @db.Timestamptz()  // creation of policy
   expires_on    DateTime        @db.Timestamptz()
