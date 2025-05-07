@@ -3,6 +3,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Mail, AlertCircle, Flag, Search, X, Sun, Moon } from 'lucide-react';
+import axios from 'axios';
 
 type Priority = 'Low' | 'Medium' | 'High';
 type Folder = 'inbox' | 'flagged' | 'sent' | 'drafts';
@@ -96,6 +97,202 @@ const MessageList: React.FC = () => {
 
   const [messageData, setMessageData] = useState<Message[]>([
     {
+      notification_id: 8001,
+      sender_id: 202,
+      recipient_id: 201,
+      type: "Policy",
+      subject: "Your Policy Renewal Notice – Action Required",
+      timestamp: "2025-03-30 14:44",
+      is_read: false,
+      is_active: true,
+      priority: "High",
+      flagged: false,
+      folder: "inbox",
+      text: "Your current policy is set to expire soon. To ensure continuous coverage, please review the attached renewal documents and confirm your intent to renew by April 15, 2025."
+    },
+    {
+      notification_id: 8002,
+      sender_id: 201,
+      recipient_id: 202,
+      type: "Claims",
+      subject: "Claim #34321: Additional Information Needed",
+      timestamp: "2025-03-30 15:00",
+      is_read: true,
+      is_active: true,
+      priority: "Medium",
+      flagged: false,
+      folder: "inbox",
+      text: "We are currently processing your claim #34321. Please upload photos of the damage and your repair estimate to proceed with the evaluation."
+    },
+    {
+      notification_id: 8003,
+      sender_id: 205,
+      recipient_id: 204,
+      type: "Claims",
+      subject: "Proof of Address Required to Finalize Your Claim",
+      timestamp: "2025-03-29 09:10",
+      is_read: true,
+      is_active: true,
+      priority: "Low",
+      flagged: false,
+      folder: "inbox",
+      text: "To finalize your claim, we require a recent utility bill or lease agreement as proof of address. Please submit this documentation within 7 days."
+    },
+    {
+      notification_id: 8004,
+      sender_id: 208,
+      recipient_id: 207,
+      type: "Policy",
+      subject: "Temporary Coverage Summary for Rental Vehicle",
+      timestamp: "2025-03-30 11:00",
+      is_read: false,
+      is_active: true,
+      priority: "Medium",
+      flagged: true,
+      folder: "inbox",
+      text: "Your temporary coverage for the rental vehicle is now active from March 30 to April 5. Please review the policy summary for details on what's included."
+    },
+    {
+      notification_id: 8005,
+      sender_id: 210,
+      recipient_id: 209,
+      type: "News",
+      subject: "Your Monthly Statement is Ready",
+      timestamp: "2025-03-28 16:43",
+      is_read: true,
+      is_active: true,
+      priority: "Low",
+      flagged: false,
+      folder: "inbox",
+      text: "Your statement for the billing period ending March 27 is now available. You can view or download it from your account dashboard."
+    },
+    {
+      notification_id: 8006,
+      sender_id: 203,
+      recipient_id: 213,
+      type: "News",
+      subject: "Storm Damage Coverage Tips You Should Know",
+      timestamp: "2025-03-27 13:27",
+      is_read: true,
+      is_active: true,
+      priority: "High",
+      flagged: true,
+      folder: "inbox",
+      text: "As storm season approaches, make sure your policy covers common storm-related incidents. Read our quick guide to understand what's covered and how to file a claim."
+    },
+    {
+      notification_id: 8007,
+      sender_id: 206,
+      recipient_id: 202,
+      type: "News",
+      subject: "Update: New Discount Opportunities Available",
+      timestamp: "2025-03-30 10:00",
+      is_read: false,
+      is_active: true,
+      priority: "Medium",
+      flagged: false,
+      folder: "inbox",
+      text: "We’ve added new discount opportunities for safe drivers and bundled policies. Check your profile to see if you're eligible for reduced premiums."
+    },
+    {
+      notification_id: 8008,
+      sender_id: 205,
+      recipient_id: 203,
+      type: "Claims",
+      subject: "We’ve Received Your Claim – What Happens Next",
+      timestamp: "2025-03-31 07:15",
+      is_read: true,
+      is_active: true,
+      priority: "Low",
+      flagged: false,
+      folder: "inbox",
+      text: "Thank you for submitting your claim. A claims adjuster has been assigned and will reach out within 2 business days to discuss next steps."
+    },
+    {
+      notification_id: 8009,
+      sender_id: 204,
+      recipient_id: 210,
+      type: "Policy",
+      subject: "Verify Your Contact Information to Avoid Delays",
+      timestamp: "2025-03-30 18:25",
+      is_read: true,
+      is_active: true,
+      priority: "Medium",
+      flagged: true,
+      folder: "inbox",
+      text: "We noticed discrepancies in your contact details. Please verify your phone number and email to ensure timely delivery of future notifications."
+    },
+    {
+      notification_id: 8010,
+      sender_id: 208,
+      recipient_id: 210,
+      type: "Policy",
+      subject: "Let’s Review Your Auto Policy Together",
+      timestamp: "2025-03-28 17:50",
+      is_read: true,
+      is_active: true,
+      priority: "High",
+      flagged: false,
+      folder: "inbox",
+      text: "Your auto policy is due for review. We recommend scheduling a quick consultation to ensure your coverage matches your current driving needs."
+    },
+    {
+      notification_id: 8011,
+      sender_id: 207,
+      recipient_id: 206,
+      type: "Claims",
+      subject: "Claim #98721 has been received and is now being reviewed",
+      timestamp: "2025-03-28 17:30",
+      is_read: false,
+      is_active: true,
+      priority: "Medium",
+      flagged: false,
+      folder: "inbox",
+      text: "Your claim has been successfully submitted. A claims specialist will review the details and contact you if additional information is required."
+    },
+    {
+      notification_id: 8012,
+      sender_id: 202,
+      recipient_id: 209,
+      type: "Claims",
+      subject: "Claim #21843 has been reviewed",
+      timestamp: "2025-03-27 16:00",
+      is_read: true,
+      is_active: true,
+      priority: "Low",
+      flagged: true,
+      folder: "inbox",
+      text: "Our review of claim #21843 is complete. A settlement offer has been posted to your account for your approval."
+    },
+    {
+      notification_id: 8013,
+      sender_id: 202,
+      recipient_id: 210,
+      type: "News",
+      subject: "Welcome to DuckCreek – What’s Next",
+      timestamp: "2025-03-30 12:44",
+      is_read: false,
+      is_active: true,
+      priority: "Medium",
+      flagged: false,
+      folder: "inbox",
+      text: "Welcome aboard! Get started by exploring your dashboard, setting up notification preferences, and reviewing your policy documents."
+    },
+    {
+      notification_id: 8014,
+      sender_id: 210,
+      recipient_id: 202,
+      type: "Policy",
+      subject: "Your Insurance Card is Now Available Online",
+      timestamp: "2025-03-31 09:30",
+      is_read: true,
+      is_active: true,
+      priority: "High",
+      flagged: false,
+      folder: "inbox",
+      text: "You can now access and download your updated insurance card directly from your account. Keep a digital copy handy while driving."
+    },
+    {
       notification_id: 8015,
       sender_id: 201,
       recipient_id: 202,
@@ -107,9 +304,11 @@ const MessageList: React.FC = () => {
       priority: "Medium",
       flagged: false,
       folder: "inbox",
-      text: ''
-    },
+      text: "To continue receiving important updates, please verify your email address by clicking the link we've sent to your inbox."
+    }
   ]);
+  
+
 
   const handleBackToList = () => {
     setSelectedMessage(null); // Reset selected message to go back to the list
@@ -118,6 +317,23 @@ const MessageList: React.FC = () => {
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode);
   }, [darkMode]);
+
+  // Fetch messages from the backend
+  // useEffect(() => {
+  //   const fetchMessages = async () => {
+  //     try {
+  //       console.log('Fetching messages from /api/getallnotifs...');
+  //       const storedUserId = localStorage.getItem('userId'); // Replace 'userId' with your key
+  //       const response = await axios.get(`/api/getallnotifs/${1}`); // Ensure this endpoint is correct
+  //       console.log('Response from /api/getallnotifs:', response.data);
+  //       setMessageData(response.data); // Assuming the API returns an array of messages
+  //     } catch (error) {
+  //       console.error('Error fetching messages:', error);
+  //     }
+  //   };
+  
+  //   fetchMessages();
+  // }, []);
 
   const handleSend = () => {
     if (!newMessage.type || !newMessage.subject) return;
@@ -153,6 +369,7 @@ const MessageList: React.FC = () => {
   
     // Ensure the drafts folder is selected in the sidebar
     setSelectedFolder("drafts");
+    
   
     // Reset newMessage state so input fields clear
     setNewMessage({
