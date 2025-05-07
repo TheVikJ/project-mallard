@@ -81,16 +81,56 @@ Example News Body:
 
 **Success Response (200)**
 ```json
+Policy Notifcation
 {
-  "message": "Creation successful",
-  "record": { // the created subtype record, e.g.: //
-    "id": 7,
-    "notif_id": 123,
-    // …other fields… //
-  }
+    "message": "Creation successful",
+    "record": {
+        "id": 4,
+        "notif_id": 13,
+        "policy_id": 9023,
+        "subject": "Policy Expiration",
+        "body": "Your policy has just expired, renew now.",
+        "is_archived": false,
+        "created_at": "2025-05-07T17:05:49.730Z"
+    }
 }
 ```
 
+```json
+Claims Notification
+{
+    "message": "Creation successful",
+    "record": {
+        "id": 4,
+        "notif_id": 14,
+        "policy_holder": "johndoe",
+        "claimant": "janedoe",
+        "type": "Damage Review",
+        "due_date": "2025-05-15T12:00:00.000Z",
+        "business": "Auto Insurance",
+        "description": "Review damages for claim #CLM-5678",
+        "is_completed": false,
+        "created_at": "2025-05-07T17:06:29.822Z"
+    }
+}
+```
+
+```json
+News Notification
+{
+    "message": "Creation successful",
+    "record": {
+        "id": 4,
+        "notif_id": 15,
+        "title": "Big Product Launch",
+        "body": "Our new product goes live next week!",
+        "type": "company",
+        "created_on": "2025-04-01T10:00:00.000Z",
+        "expires_on": "2025-05-01T10:00:00.000Z",
+        "created_at": "2025-05-07T17:06:59.675Z"
+    }
+}
+```
 **Errors**
 
 - `400`: missing/invalid type | recipient | data
