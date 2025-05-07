@@ -216,39 +216,109 @@ News Notification
 <br>
 <br>
 
-## **4. List All Notifications by Type**
-### **POST /api/getallnotifs/{userId}**
+## **4. Get All Notifications by Type**
+### **POST /api/getallnotifs**
 
 Fetches all subtype records for userId, optionally filtered.
 
 **Route Params**
 
-- `userId` (string)
+- None
 
-**Request Body (optional filters)**
+**Request Body (optional filters)**<br>
+You can leave any of these blank and it will not be included in the filter. <br>
+Ex. no recipient will retrieve all messages sent by sender.
 
 ```json
-{
-  "type": "claim",      // restrict to one subtype
-  "is_flagged": true    // filter notifications where notifications.is_flagged == true
+Policy Notification
+ {
+  "type":      "policy",      
+  "sender":    "fionabaker",  
+  "recipient": "janedoe",    
+  "priority":  2,          
+  "is_flagged": true,        
+  "is_draft":   false        
 }
+```
+
+```json
+Claims Notification
+{
+  "type":      "claim",      
+  "sender":    "johndoe",  
+  "recipient": "janedoe",    
+  "priority":  0,          
+  "is_flagged": true,        
+  "is_draft":   false        
+}
+```
+
+```json
+News Notification
+ {
+  "type":      "news",      
+  "sender":    "johndoe",  
+  "recipient": "janedoe",    
+  "priority":  1,          
+  "is_flagged": false,        
+  "is_draft":   false        
+}
+
 ```
 
 **Success (200)**
 
+
+
 ```json
+Policy Notification
 [
-  {
-    "id": 5,
-    "notif_id": 123,
-    /* …fields from policy_notifs or claim_notifs or news_notifs… */
-    "Notification": {
-      "sender": "alice",
-      "recipient": "alice",
-      /* …parent notification fields… */
+    {
+        "id": 12,
+        "sender": "fionabaker",
+        "recipient": "janedoe",
+        "type": "policy",
+        "subject": "Policy Retirement Notice",
+        "body": "Policy 312 is no longer active and has been removed.",
+        "priority": 2,
+        "is_read": false,
+        "is_flagged": true,
+        "timestamp": "2025-04-03T10:22:40.000Z"
     }
-  },
-  /* …more records… */
+]
+```
+```json
+Claims Notification
+[
+    {
+        "id": 3,
+        "sender": "johndoe",
+        "recipient": "janedoe",
+        "type": "claim",
+        "subject": "Sample Corporation, Inc.",
+        "body": "Important claim update regarding Sample Business, Inc.",
+        "priority": 0,
+        "is_read": false,
+        "is_flagged": true,
+        "timestamp": "2025-04-02T16:38:57.241Z"
+    }
+]
+```
+```json
+News Notification
+[
+    {
+        "id": 5,
+        "sender": "johndoe",
+        "recipient": "janedoe",
+        "type": "news",
+        "subject": "Updates to Company Policy",
+        "body": "See company policy site for updates!",
+        "priority": 1,
+        "is_read": false,
+        "is_flagged": false,
+        "timestamp": "2025-04-02T17:12:03.307Z"
+    }
 ]
 ```
 
