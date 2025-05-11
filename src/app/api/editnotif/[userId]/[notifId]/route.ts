@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/utils/prisma';
-import { Prisma, policy_notifs, claim_notifs, news_notifs } from '@prisma/client';
+import { Prisma, policy_notifs, claim_notifs, news_notifs, notifications} from '@prisma/client';
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ userId: string, notifId: string }> }) {
   const { userId, notifId } = await params;
@@ -13,6 +13,14 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ us
   // check for type and edits
   if (!body.type) return NextResponse.json({ message: 'Body must have property \'type\'' }, { status: 400 });
   if (!body.edits) return NextResponse.json({ message: 'Body must have property \'edits\'' }, { status: 400 });
+
+  if ('is_flagged' in body.edits) {
+    await prisma.notifications.update({
+      where: { id: Number(notifId) },
+      data: { is_flagged: body.edits.is_flagged },
+    })
+    delete body.edits.is_flagged
+  }
 
   // edit according to subtype
   try {
@@ -43,7 +51,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ us
 
 async function createPolicy(userId: string, notifId: number, edits: object): Promise<policy_notifs> {
   // filter to only these properties
-  const props = ['policy_id, subject, body, is_read, is_archived'];
+  const props = ['policy_id', 'subject', 'body', 'is_read', 'is_archived'];
   const newNotif = Object.fromEntries(
     Object.entries(edits).filter(
       ([key]) => props.includes(key)
