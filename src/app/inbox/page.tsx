@@ -231,6 +231,32 @@ const MessageList: React.FC = () => {
 
   //   return matchesFolder && matchesSearch;
   // });
+  // inside MessageList, above your return():
+  const handleToggleFlag = async (id: number) => {
+    // find the message we’re toggling
+    const msg = messageData.find((m) => m.id === id)
+    if (!msg) return
+
+    const newFlag = !msg.is_flagged
+
+    try {
+      // call your PATCH /api/editnotif endpoint
+      // console.log(`${msg.type} ${msg.id} ${newFlag} ${msg.sender}`)
+      await axios.patch(`/api/editnotif/${msg.sender}/${msg.id}`, {
+        type: msg.type,
+        edits: { is_flagged: newFlag }
+      })
+
+      // update local state
+      setMessageData((prev) =>
+        prev.map((m) =>
+          m.id === id ? { ...m, is_flagged: newFlag } : m
+        )
+      )
+    } catch (err) {
+      console.error('Error toggling flag:', err)
+    }
+  }
 
   return (
     <div className="relative min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
@@ -271,17 +297,26 @@ const MessageList: React.FC = () => {
                   onClick={() => setSelectedMessage(msg)}
                   className={'cursor-pointer flex items-center justify-between bg-gray-100 dark:bg-gray-700 rounded-full px-4 py-2 mb-3 shadow-sm'}
                 >
-                  {/* Date + Flag */}
-                  <div className="flex items-center w-30 text-sm text-gray-500">
-                    <div className="w-9 flex justify-center">
-                      {msg.is_flagged && selectedFolder !== 'drafts' && <Flag className="w-4 h-4 text-red-500" />}
+                {/* Date + Flag as a button */}
+                <div className="flex items-center w-30 text-sm text-gray-500">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleFlag(msg.id);
+                        }}
+                        className="w-9 flex justify-center"
+                        aria-label={msg.is_flagged ? 'Unflag message' : 'Flag message'}
+                      >
+                        <Flag
+                          className={`w-4 h-4 ${
+                            msg.is_flagged ? 'text-red-500' : 'text-gray-400 dark:text-gray-500'
+                          }`}
+                        />
+                      </button>
+                      <div className="flex-1 text-left">
+                        {new Date(msg.timestamp).toDateString()}
+                      </div>
                     </div>
-                    <div className="flex-1 text-left">{new Date(msg.timestamp).toDateString()}</div>
-                  </div>
-
-                  <div className="flex-1 px-4 text-gray-900 font-medium flex items-center gap-2">
-                    {msg.subject.length >= 30 ? (msg.subject.slice(0, 30) + '...') : msg.subject}
-                  </div>
 
                   <div className="grid grid-cols-2 gap-4 w-35 ml-4 shrink-0 text-sm text-gray-600 dark:text-gray-300">
                     {/* Type */}
