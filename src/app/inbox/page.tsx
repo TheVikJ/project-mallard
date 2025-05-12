@@ -317,7 +317,11 @@ const MessageList: React.FC = () => {
                         {new Date(msg.timestamp).toDateString()}
                       </div>
                     </div>
-
+                    <div className="flex-1 ml-4">
+                      <div className="text-base font-medium text-gray-900 dark:text-gray-100">
+                        {msg.subject}
+                      </div>
+                    </div>
                   <div className="grid grid-cols-2 gap-4 w-35 ml-4 shrink-0 text-sm text-gray-600 dark:text-gray-300">
                     {/* Type */}
                     <div className="flex justify-center">
