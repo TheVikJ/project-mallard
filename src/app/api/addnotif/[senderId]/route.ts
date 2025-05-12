@@ -17,19 +17,20 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ sen
   //Attempt for including flagged and folder
   const is_flagged = body.is_flagged ?? false;
   const priority  = body.priority; // e.g. "2 - high" | "1 - medium" | "0 -low"
+  const is_draft = body.is_draft ?? false;
   // Added into the following create notification calls
   
   try {
     let res: policy_notifs | claim_notifs | news_notifs;
     switch (body.type) {
       case 'policy':
-        res = await createPolicy(senderId, body.recipient, body.data, is_flagged, priority);
+        res = await createPolicy(senderId, body.recipient, body.data, is_flagged, priority, is_draft);
         break;
       case 'claim':
-        res = await createClaim(senderId, body.recipient, body.data, is_flagged, priority);
+        res = await createClaim(senderId, body.recipient, body.data, is_flagged, priority, is_draft);
         break;
       case 'news':
-        res = await createNews(senderId, body.recipient, body.data, is_flagged, priority);
+        res = await createNews(senderId, body.recipient, body.data, is_flagged, priority, is_draft);
         break;
       default:
         return NextResponse.json({ message: 'Property \'type\' must be one of [\'policy\', \'claim\', \'news\']' }, { status: 400 });
@@ -52,7 +53,8 @@ async function createPolicy(
   recipientId: string,
   data: policy_notifs,
   is_flagged: boolean,
-  priority?: number
+  priority?: number, 
+  is_draft?: boolean
 ) {
   //0) realign notifications.id 
   await prisma.$executeRaw`
@@ -65,7 +67,7 @@ async function createPolicy(
 
   //1) create a new notification 
   const notif = await prisma.notifications.create({
-    data: { sender: senderId, recipient: recipientId, is_flagged, priority }
+    data: { sender: senderId, recipient: recipientId, is_flagged, priority, is_draft }
   });
 
   //2) realign policy_notifs.id 
@@ -94,7 +96,8 @@ async function createClaim(
   recipientId: string,
   data: claim_notifs,
   is_flagged: boolean,
-  priority?: number
+  priority?: number,
+  is_draft?: boolean
 ) {
   // 0) realign notifications.seq
   await prisma.$executeRaw`
@@ -112,6 +115,7 @@ async function createClaim(
       recipient:  recipientId,
       is_flagged,
       priority,
+      is_draft
     }
   });
 
@@ -144,7 +148,8 @@ async function createNews(
   recipientId: string,
   data: news_notifs,
   is_flagged: boolean,
-  priority?: number
+  priority?: number,
+  is_draft?: boolean
 ) {
   // 0) realign notifications.id sequence
   await prisma.$executeRaw`
@@ -162,6 +167,7 @@ async function createNews(
       recipient:  recipientId,
       is_flagged,
       priority,
+      is_draft
     }
   });
 
